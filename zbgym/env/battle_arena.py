@@ -167,7 +167,7 @@ class BattleArena(gym.Env):
             "death_penalty": -5.0,
             "damage_reward_ratio": 0.1,
             "healing_reward_ratio": 0.2,
-            "survival_reward": 0.1,
+            "survival_reward": 0.01,  # Reduced to make other rewards more impactful
             "idle_penalty": -0.01,
         }
 
@@ -199,7 +199,7 @@ class BattleArena(gym.Env):
         Reset the environment.
 
         Args:
-            seed: Random seed
+            seed: Random seed for reproducibility
             options: Additional reset options
 
         Returns:
@@ -207,11 +207,14 @@ class BattleArena(gym.Env):
         """
         super().reset(seed=seed)
 
-        # Initialize RNG
+        # Initialize RNG - use a single RNG instance for determinism
         if seed is not None:
             self._np_random = np.random.default_rng(seed)
         elif not hasattr(self, "_np_random") or self._np_random is None:
             self._np_random = np.random.default_rng()
+        
+        # Store seed for reproducibility
+        self._seed = seed
 
         # Reset state
         self._state = BattleArenaState(
@@ -231,10 +234,10 @@ class BattleArena(gym.Env):
             ) / 2 + 200,
         )
 
-        # Initialize characters
+        # Initialize characters with deterministic spawn
         self._init_characters()
 
-        # Reset systems
+        # Reset systems with seed
         self.tick_system.reset()
         self.movement_system.reset_all()
         self._action_history.clear()
@@ -254,7 +257,19 @@ class BattleArena(gym.Env):
         arena_width = self.config.config.arena_width
         arena_height = self.config.config.arena_height
 
-        # Spawn positions
+        # Deterministic spawn positions based on seed
+        # Use integer offsets for reproducibility
+        spawn_offsets = []
+        if self._seed is not None:
+            rng = np.random.default_rng(self._seed)
+            for i in range(num_agents):
+                offset_x = rng.integers(-30, 31)  # -30 to 30
+                offset_y = rng.integers(-30, 31)
+                spawn_offsets.append((offset_x, offset_y))
+        else:
+            spawn_offsets = [(0, 0)] * num_agents
+
+        # Base spawn positions
         spawn_positions = [
             Vector2D(arena_width * 0.2, arena_height * 0.5),
             Vector2D(arena_width * 0.8, arena_height * 0.5),
@@ -265,11 +280,12 @@ class BattleArena(gym.Env):
         for i in range(num_agents):
             char_id = f"agent_{i}"
             spawn_pos = spawn_positions[i % len(spawn_positions)]
+            offset = spawn_offsets[i] if i < len(spawn_offsets) else (0, 0)
 
-            # Add some randomness to spawn
+            # Apply deterministic offset
             spawn_pos = Vector2D(
-                spawn_pos.x + self._np_random.uniform(-50, 50),
-                spawn_pos.y + self._np_random.uniform(-50, 50),
+                spawn_pos.x + offset[0],
+                spawn_pos.y + offset[1],
             )
 
             self._state.characters[char_id] = CharacterState(
@@ -317,6 +333,11 @@ class BattleArena(gym.Env):
     def _process_action(self, action: NDArray[np.float32] | int) -> float:
         """Process action and calculate reward."""
         reward = 0.0
+        
+        # Store previous state for delta calculations
+        prev_damage_dealt = {cid: c.damage_dealt for cid, c in self._state.characters.items()}
+        prev_kills = {cid: c.kills for cid, c in self._state.characters.items()}
+        prev_health = {cid: c.health for cid, c in self._state.characters.items()}
 
         # Parse action
         if isinstance(action, np.ndarray):
@@ -329,13 +350,50 @@ class BattleArena(gym.Env):
 
         # Check if agent is moving
         is_moving = abs(move_x) > 0.1 or abs(move_y) > 0.1
+        move_magnitude = (move_x ** 2 + move_y ** 2) ** 0.5
 
         # Idle penalty
         if not is_moving:
             reward += self.reward_config.get("idle_penalty", -0.01)
 
-        # Survival reward
-        reward += self.reward_config.get("survival_reward", 0.1)
+        # Movement reward - reward for moving
+        if is_moving:
+            reward += 0.02 * min(move_magnitude, 1.0)
+
+        # Get self character (first agent)
+        self_char = next((c for c in self._state.characters.values() if c.id.startswith("agent_")), None)
+        
+        if self_char:
+            if self_char.is_alive:
+                # Survival reward
+                reward += self.reward_config.get("survival_reward", 0.01)
+                
+                # Health-based reward/penalty
+                health_pct = self_char.health / MAX_HEALTH
+                if health_pct < 0.3:
+                    reward -= 0.05  # Danger penalty when low health
+                elif health_pct > 0.9:
+                    reward += 0.01  # Reward for being healthy
+            else:
+                # Agent died
+                reward += self.reward_config.get("death_penalty", -5.0)
+
+        # Check for damage dealt (combat happened)
+        for char_id, char in self._state.characters.items():
+            damage_delta = char.damage_dealt - prev_damage_dealt[char_id]
+            if damage_delta > 0:
+                reward += damage_delta * self.reward_config.get("damage_reward_ratio", 0.1)
+            
+            # Kill reward
+            if char.kills > prev_kills[char_id]:
+                reward += self.reward_config.get("kill_reward", 10.0)
+
+        # Zone danger penalty
+        if self_char:
+            dist_to_center = self_char.position.distance_to(self._state.safe_zone_center)
+            zone_danger = dist_to_center / self._state.safe_zone_radius
+            if zone_danger > 0.8:
+                reward -= 0.02 * (zone_danger - 0.8)
 
         # Store action
         self._action_history.append({
@@ -488,21 +546,22 @@ class BattleArena(gym.Env):
 
     def _is_terminated(self) -> bool:
         """Check if episode is terminated."""
-        # Check if only one team/agent remains
-        alive_by_team: dict[str, int] = {}
-        for char in self._state.characters.values():
-            if char.is_alive:
-                alive_by_team[char.team] = alive_by_team.get(char.team, 0) + 1
-
-        if len(alive_by_team) == 1:
+        alive_agents = [c for c in self._state.characters.values() if c.is_alive]
+        
+        # Check if all dead
+        if len(alive_agents) == 0:
             return True
-
+        
+        # Check if only 1 agent remains (winner)
+        if len(alive_agents) == 1:
+            return True
+        
         # Check time limit
         if self._state.elapsed_time >= self._state.match_duration:
             return True
-
-        # Check if all agents dead
-        if all(not c.is_alive for c in self._state.characters.values()):
+        
+        # Check max steps
+        if self._current_step >= self._max_episode_steps:
             return True
 
         return False
