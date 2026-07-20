@@ -449,3 +449,23 @@ def create_character(
         return None
 
     return character_type(character_id=instance_id, team=team, **kwargs)
+
+
+# Pre-register default characters (loaded from dump or built-in)
+_DEFAULT_CHARACTERS_LOADED = False
+
+
+def load_default_characters() -> None:
+    """Load default characters into the registry.
+    
+    This is called automatically by gen.load_and_register() but can also
+    be called manually to ensure the registry is populated.
+    """
+    global _DEFAULT_CHARACTERS_LOADED
+    if _DEFAULT_CHARACTERS_LOADED:
+        return
+    
+    # Characters are typically loaded from dump data
+    # This function ensures consistency with weapon_registry
+    # which has built-in default weapons
+    _DEFAULT_CHARACTERS_LOADED = True

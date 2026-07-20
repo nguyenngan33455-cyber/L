@@ -425,3 +425,8 @@ class ReplayPlayer:
             "total_kills": total_kills,
             "unique_agents": len(set(a.agent_id for s in self.replay.steps for a in s.actions)),
         }
+
+
+# Aliases for backward compatibility
+DeterministicRecorder = ReplayRecorder
+DeterministicPlayer = ReplayPlayer

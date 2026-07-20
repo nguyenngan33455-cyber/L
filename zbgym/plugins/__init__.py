@@ -9,6 +9,7 @@ from zbgym.plugins.character import (
     character_registry,
     register_character,
     create_character,
+    load_default_characters,
 )
 from zbgym.plugins.weapon import (
     Weapon,
@@ -39,6 +40,7 @@ __all__ = [
     "character_registry",
     "register_character",
     "create_character",
+    "load_default_characters",
     # Weapon
     "Weapon",
     "WeaponStats",

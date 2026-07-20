@@ -122,6 +122,22 @@ class DebugRenderer:
         # Render buffer
         self._render_buffer: np.ndarray | None = None
 
+    @classmethod
+    def from_env(cls, env: "BattleArena", scale: float = 1.0) -> "DebugRenderer":
+        """
+        Create a DebugRenderer from an environment.
+
+        Args:
+            env: BattleArena environment to render
+            scale: Scale factor for rendering
+
+        Returns:
+            DebugRenderer configured for the environment
+        """
+        width = int(env.config.config.arena_width)
+        height = int(env.config.config.arena_height)
+        return cls(width=width, height=height, scale=scale)
+
     def add_shape(self, shape: DebugShape) -> None:
         """Add a shape to render."""
         self.shapes.append(shape)
