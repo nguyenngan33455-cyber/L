@@ -182,9 +182,18 @@ class DumpParser:
     
     @staticmethod
     def _name_to_id(name: str) -> str:
-        """Convert class name to snake_case ID."""
-        result = re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
-        return re.sub(r'_+', '_', result).strip('_')
+        """Convert class name to snake_case ID.
+        
+        Handles consecutive uppercase letters correctly:
+        - XMLParser -> xml_parser
+        - HTMLDocument -> html_document
+        - PlayerWeapon -> player_weapon
+        """
+        # Use a pattern that handles acronyms correctly
+        # Insert underscore before uppercase letters that are followed by lowercase
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+        result = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1)
+        return result.lower().strip('_')
     
     @staticmethod
     def _name_to_char_id(name: str) -> str:
