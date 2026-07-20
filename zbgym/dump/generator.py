@@ -1,10 +1,23 @@
 """Dynamic plugin generator from Zooba dump."""
 
 from typing import Dict, Type, Optional
-from zbgym.plugins.character import Character, character_registry
-from zbgym.plugins.weapon import Weapon, weapon_registry
-from zbgym.plugins.skill import Skill, skill_registry
-from zbgym.dump.parser import DumpParser, CharacterInfo, WeaponInfo, SkillInfo
+
+from zbgym.plugins.base import PluginMetadata
+from zbgym.plugins.character import (
+    Character,
+    character_registry,
+    CharacterStats,
+    CharacterConfig,
+    Ability,
+)
+from zbgym.plugins.weapon import Weapon, weapon_registry, WeaponStats, WeaponConfig
+from zbgym.plugins.skill import Skill, skill_registry, SkillConfig, SkillType
+from zbgym.dump.parser import (
+    DumpParser,
+    CharacterInfo,
+    WeaponInfo,
+    SkillInfo,
+)
 
 
 class DynamicPluginGenerator:
@@ -25,71 +38,176 @@ class DynamicPluginGenerator:
     def generate_character(self, info: CharacterInfo) -> Type[Character]:
         """Generate a Character class from CharacterInfo."""
         
-        def create_character_class():
-            attrs = {
-                'plugin_id': info.char_id,
-                'name': info.name,
-                'health': 1000,
-                'speed': 5.0,
-                'damage': 100,
-                'attack_range': 3.0,
-                'attack_speed': 1.0,
-                '_char_enum_id': info.enum_id,
-            }
-            
-            # Add custom stats from dump
-            for key, value in info.stats.items():
-                attrs[key] = value
-                
-            return type(info.name, (Character,), attrs)
-            
-        cls = create_character_class()
+        # Create metadata
+        metadata = PluginMetadata(
+            id=info.char_id,
+            name=info.name,
+            description=info.description,
+        )
+        
+        # Create stats (use defaults if not available)
+        stats = CharacterStats(
+            max_health=1000,  # Default
+            max_shield=500,   # Default
+            max_energy=100,   # Default
+            move_speed=300,   # Default
+            base_damage=10,   # Default
+        )
+        
+        # Map modifier fields if available
+        if info.health_modifier != 0:
+            stats.max_health = 1000 * (1 + info.health_modifier)
+        if info.damage_modifier != 0:
+            stats.base_damage = 10 * (1 + info.damage_modifier)
+        if info.agility_modifier != 0:
+            stats.move_speed = 300 * (1 + info.agility_modifier)
+        
+        # Create abilities
+        abilities = []
+        if info.active_name:
+            abilities.append(Ability(
+                id=f"{info.char_id}_active",
+                name=info.active_name,
+                description=info.active_desc,
+                cooldown=5.0,
+                is_ultimate=False,  # Character doesn't have category
+            ))
+        if info.passive_name:
+            abilities.append(Ability(
+                id=f"{info.char_id}_passive",
+                name=info.passive_name,
+                description=info.passive_desc,
+                cooldown=0,
+            ))
+        
+        # Create config
+        config = CharacterConfig(
+            stats=stats,
+            abilities=abilities,
+            model_id=info.char_id,
+        )
+        
+        # Create class dynamically
+        attrs = {
+            '__module__': 'zbgym.plugins.generated',
+            'metadata': metadata,
+            'config': config,
+            '_char_enum_id': info.enum_id,
+        }
+        
+        cls = type(info.name, (Character,), attrs)
         self._character_classes[info.char_id] = cls
         return cls
     
     def generate_weapon(self, info: WeaponInfo) -> Type[Weapon]:
         """Generate a Weapon class from WeaponInfo."""
         
-        def create_weapon_class():
-            attrs = {
-                'plugin_id': info.weapon_id,
-                'name': info.name,
-                'damage': info.damage,
-                'fire_rate': info.fire_rate,
-                'range_val': info.range_val,
-                'projectile_speed': info.projectile_speed,
-            }
-            
-            for key, value in info.stats.items():
-                attrs[key] = value
-                
-            return type(info.name, (Weapon,), attrs)
-            
-        cls = create_weapon_class()
+        # Create metadata
+        metadata = PluginMetadata(
+            id=info.weapon_id,
+            name=info.name,
+        )
+        
+        # Create stats
+        stats = WeaponStats(
+            damage=info.damage if info.damage > 0 else 10,
+            fire_rate=info.fire_rate if info.fire_rate > 0 else 10,
+            projectile_speed=info.projectile_speed if info.projectile_speed > 0 else 1000,
+            range=info.range_val if info.range_val > 0 else 1000,
+            magazine_size=info.magazine_size if info.magazine_size > 0 else 30,
+            total_ammo=info.total_ammo if info.total_ammo > 0 else 120,
+            reload_time=info.reload_time if info.reload_time > 0 else 2.0,
+            spread=info.spread,
+            recoil=info.recoil,
+            critical_chance=info.critical_chance,
+            critical_multiplier=info.critical_multiplier,
+            headshot_multiplier=info.headshot_multiplier,
+            penetration=info.penetration,
+            ricochet=info.ricochet,
+            projectile_count=info.projectile_count,
+            # explosion_radius and explosion_damage not in WeaponInfo
+            min_damage_ratio=info.min_damage_ratio,
+            max_damage_distance=info.max_damage_distance,
+        )
+        
+        # Create config
+        config = WeaponConfig(
+            stats=stats,
+            model_id=info.weapon_id,
+        )
+        
+        # Create class dynamically
+        attrs = {
+            '__module__': 'zbgym.plugins.generated',
+            'metadata': metadata,
+            'config': config,
+            '_skill_category_id': info.skill_category_id,
+        }
+        
+        cls = type(info.name, (Weapon,), attrs)
         self._weapon_classes[info.weapon_id] = cls
         return cls
     
     def generate_skill(self, info: SkillInfo) -> Type[Skill]:
         """Generate a Skill class from SkillInfo."""
         
-        def create_skill_class():
-            attrs = {
-                'plugin_id': info.skill_id,
-                'name': info.name,
-                'category': info.category,
-                'cooldown': info.cooldown,
-                'duration': info.duration,
-                'effects': info.effects,
-            }
-            
-            for key, value in info.stats.items():
-                attrs[key] = value
-                
-            return type(info.name, (Skill,), attrs)
-            
-        cls = create_skill_class()
+        # Create metadata
+        metadata = PluginMetadata(
+            id=info.skill_id,
+            name=info.name,
+        )
+        
+        # Map skill category to SkillType
+        skill_type = self._map_skill_type(info.skill_category_name)
+        
+        # Create config
+        config = SkillConfig(
+            skill_type=skill_type,
+            cooldown=info.cooldown if info.cooldown > 0 else 5.0,
+            range=info.range_val if info.range_val > 0 else 500,
+            duration=info.duration,
+            damage=info.damage,
+        )
+        
+        # Create class dynamically with abstract method implemented
+        class_name = info.name
+        
+        # Create a concrete skill class
+        class GeneratedSkill(Skill):
+            def _apply_effects(self, target) -> None:
+                """Generated skill effect."""
+                pass
+        
+        # Set metadata and config
+        GeneratedSkill.metadata = metadata
+        GeneratedSkill.config = config
+        GeneratedSkill.__name__ = class_name
+        GeneratedSkill.__module__ = 'zbgym.plugins.generated'
+        
+        cls = GeneratedSkill
         self._skill_classes[info.skill_id] = cls
         return cls
+    
+    def _map_skill_type(self, skill_category: str) -> SkillType:
+        """Map skill category string to SkillType enum."""
+        mapping = {
+            'bow': SkillType.PROJECTILE,
+            'bomb': SkillType.AOE,
+            'gun': SkillType.PROJECTILE,
+            'melee': SkillType.AOE,  # Closest match
+            'machine_gun': SkillType.PROJECTILE,
+            'spear': SkillType.PROJECTILE,
+            'boomerang': SkillType.PROJECTILE,
+            'medkit': SkillType.HEAL,
+            'consumable': SkillType.BUFF,
+            'passive': SkillType.BUFF,
+            'arrow_rain': SkillType.AOE,
+            'spartan': SkillType.PROJECTILE,
+            'focus': SkillType.PROJECTILE,
+            'special': SkillType.ULTIMATE,
+            'default': SkillType.PROJECTILE,
+        }
+        return mapping.get(skill_category, SkillType.PROJECTILE)
     
     def generate_all(self) -> None:
         """Generate all plugins from parsed data."""
