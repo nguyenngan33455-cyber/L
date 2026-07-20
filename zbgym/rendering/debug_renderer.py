@@ -607,3 +607,26 @@ class DebugRenderer:
         # Convert RGBA to RGB
         rgb = buffer[:, :, :3] * 255
         return rgb.astype(np.uint8)
+
+    def render(self, mode: str = "human") -> np.ndarray | None:
+        """
+        Render the current frame.
+
+        Args:
+            mode: Rendering mode ("human" or "rgb_array")
+
+        Returns:
+            RGB array if mode="rgb_array", None otherwise
+        """
+        image = self.to_image()
+        
+        if mode == "human":
+            # For human mode, caller should handle display
+            # Just return None as per gym convention
+            return None
+        
+        return image
+
+    def close(self) -> None:
+        """Close the renderer and cleanup resources."""
+        self.clear()

@@ -844,8 +844,12 @@ class DumpParser:
     def parse_weapons(self) -> Dict[str, WeaponInfo]:
         """Parse weapon data from dump.
         
-        Note: Actual weapon configs are in Unity assets, not dump.cs.
-        This extracts weapon stat constants and creates entries from skill categories.
+        Note: Actual weapon configs (damage, fire_rate, etc.) are in Unity ScriptableObjects,
+        not in dump.cs. This extracts weapon types and creates placeholder entries.
+        
+        Weapons are derived from:
+        1. Weapon skill categories (WeaponBow, WeaponBomb, etc.)
+        2. Common weapons referenced in code
         """
         if not self._skill_category_enum:
             self.parse_enums()
@@ -888,6 +892,35 @@ class DumpParser:
             )
             
             self._weapons[weapon_id] = weapon
+        
+        # Add common weapons from game data (based on CharacterObject references)
+        # These are weapons that characters can use
+        common_weapons = [
+            ('rifle', 'Rifle', 'rifle', 0),
+            ('pistol', 'Pistol', 'pistol', 0),
+            ('smg', 'SMG', 'smg', 0),
+            ('shotgun', 'Shotgun', 'shotgun', 0),
+            ('sniper', 'Sniper', 'sniper', 0),
+            ('machine_gun', 'MachineGun', 'machine_gun', 0),
+            ('bow', 'Bow', 'bow', 0),
+            ('crossbow', 'Crossbow', 'crossbow', 0),
+            ('throwing_knife', 'ThrowingKnife', 'throwing', 0),
+            ('grenade', 'Grenade', 'bomb', 0),
+            ('tomahawk', 'Tomahawk', 'throw', 0),
+            ('spear', 'Spear', 'spear', 0),
+            ('hammer', 'Hammer', 'melee', 0),
+            ('bat', 'Bat', 'melee', 0),
+        ]
+        
+        for weapon_id, name, category, skill_cat_id in common_weapons:
+            if weapon_id not in self._weapons:
+                weapon = WeaponInfo(
+                    weapon_id=weapon_id,
+                    name=name,
+                    category=category,
+                    skill_category_id=skill_cat_id,
+                )
+                self._weapons[weapon_id] = weapon
         
         print(f"[DumpParser] Parsed {len(self._weapons)} weapons")
         return self._weapons

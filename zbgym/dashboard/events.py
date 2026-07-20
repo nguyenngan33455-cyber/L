@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from zbgym.dashboard.models import EventType
+
 if TYPE_CHECKING:
     from zbgym.dashboard.models import EventData
 
@@ -45,7 +47,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,
@@ -78,7 +80,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         data: dict = {
             "cause": cause,
@@ -115,7 +117,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         data: dict = {
             "victim_id": victim_id,
@@ -154,7 +156,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,
@@ -188,7 +190,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,
@@ -222,7 +224,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,
@@ -253,7 +255,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,
@@ -283,7 +285,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,
@@ -313,7 +315,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,
@@ -345,7 +347,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,
@@ -376,7 +378,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,
@@ -406,7 +408,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         data: dict = {
             "total_timesteps": total_timesteps,
@@ -437,7 +439,7 @@ class Event:
         Returns:
             EventData instance.
         """
-        from zbgym.dashboard.models import EventData, EventType
+        from zbgym.dashboard.models import EventData
 
         return EventData.create(
             session_id=session_id,

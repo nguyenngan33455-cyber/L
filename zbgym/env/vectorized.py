@@ -39,7 +39,7 @@ class VectorizedBattleArena:
     """
     Vectorized Battle Arena for massive parallel RL training.
 
-    Supports 32, 64, 128, 256, 512, 1024 parallel environments.
+    Supports any number of parallel environments >= 1.
 
     Uses multiprocessing for true parallelism.
     """
@@ -54,18 +54,16 @@ class VectorizedBattleArena:
         Initialize vectorized environment.
 
         Args:
-            num_envs: Number of parallel environments
+            num_envs: Number of parallel environments (must be >= 1)
             config: Environment configuration
             use_multiprocessing: Use multiprocessing for parallelism
         """
+        if num_envs < 1:
+            raise ValueError(f"num_envs must be >= 1, got {num_envs}")
+        
         self.num_envs = num_envs
         self.config = config or EnvironmentConfig()
         self.use_multiprocessing = use_multiprocessing
-
-        # Validate num_envs
-        supported_envs = [32, 64, 128, 256, 512, 1024]
-        if num_envs not in supported_envs:
-            raise ValueError(f"num_envs must be one of {supported_envs}")
 
         # Create environments
         self._envs: list[BattleArena] = []

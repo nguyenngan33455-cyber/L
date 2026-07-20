@@ -119,6 +119,24 @@ class DataLoader:
         """Get animation definitions."""
         return self.load("animations")
 
+    # Aliases for load_* compatibility
+    load_characters = get_characters
+    load_character = get_character
+    load_weapons = get_weapons
+    load_weapon = get_weapon
+    load_skills = get_skills
+    load_skill = get_skill
+    load_maps = get_maps
+    load_map = get_map
+    load_damage_types = get_damage_types
+    load_effects = get_effects
+    load_projectiles = get_projectiles
+    load_buffs = get_buffs
+    load_loot = get_loot
+    load_constants = get_constants
+    load_movement = get_movement
+    load_animations = get_animations
+
     def clear_cache(self) -> None:
         """Clear the data cache."""
         self._cache.clear()
