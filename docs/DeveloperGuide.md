@@ -1,18 +1,38 @@
 # Developer Guide
 
+> **Alpha Version** - For ZBGym v0.1.0-alpha
+
+## Table of Contents
+
+1. [Getting Started](#getting-started)
+2. [Development Setup](#development-setup)
+3. [Running Tests](#running-tests)
+4. [Code Quality](#code-quality)
+5. [Project Structure](#project-structure)
+6. [Creating Custom Plugins](#creating-custom-plugins)
+7. [Environment Configuration](#environment-configuration)
+8. [Training Agents](#training-agents)
+9. [API Reference](#api-reference)
+10. [Debugging](#debugging)
+
+---
+
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.8+
-- pip or uv package manager
+| Requirement | Version | Notes |
+|------------|---------|-------|
+| Python | 3.8+ | Tested on 3.13 |
+| Git | Any | For cloning |
+| pip/uv | Latest | Package management |
 
-### Installation
+### Clone and Install
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/zbgym.git
-cd zbgym
+git clone https://github.com/nguyenngan33455-cyber/L.git
+cd L
 
 # Install in development mode
 pip install -e ".[dev]"
@@ -21,84 +41,149 @@ pip install -e ".[dev]"
 uv pip install -e ".[dev]"
 ```
 
-### Running Tests
+### Verify Installation
+
+```bash
+# Check installation
+python -c "import zbgym; print(zbgym.__version__)"
+
+# Run quick test
+python -c "
+import zbgym
+env = zbgym.make('BattleArena-v1')
+obs, info = env.reset()
+print(f'Observation shape: {obs.shape}')
+print(f'Action space: {env.action_space}')
+env.close()
+"
+```
+
+---
+
+## Development Setup
+
+### Dependencies
+
+```toml
+# pyproject.toml
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "ruff", "mypy"]
+all = ["torch", "stable-baselines3", "fastapi", "uvicorn"]
+```
+
+### Virtual Environment (Recommended)
+
+```bash
+# Create venv
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+
+# Install
+pip install -e ".[dev,all]"
+```
+
+---
+
+## Running Tests
 
 ```bash
 # Run all tests
 pytest
 
-# Run with coverage
-pytest --cov=zbgym --cov-report=html
+# Run with verbose output
+pytest -v
 
-# Run specific test file
+# Run with coverage
+pytest --cov=zbgym --cov-report=html --cov-report=term
+
+# Specific test files
 pytest tests/test_engine.py -v
+pytest tests/test_renderer.py -v
+pytest tests/test_vectorized.py -v
 ```
 
-### Code Quality
+### Test Results (v0.1.0-alpha)
+
+```
+249 tests passed ✅
+- test_engine.py: 17 tests
+- test_vectorized.py: 10 tests  
+- test_renderer.py: 12 tests
+- test_replay.py: 8 tests
+- test_trainer.py: 6 tests
+```
+
+---
+
+## Code Quality
 
 ```bash
-# Format code
+# Format all Python files
 ruff format .
 
-# Lint code
+# Lint all files
 ruff check .
 
-# Type checking
-mypy zbgym/
+# Auto-fix issues
+ruff check --fix .
 ```
+
+---
 
 ## Project Structure
 
 ```
 zbgym/
-├── __init__.py           # Package init, version, make()
-├── config.py             # Configuration classes
-├── constants.py          # Game constants
-├── env/                  # RL environments
-│   ├── __init__.py
-│   └── battle_arena.py   # Main environment
-├── engine/               # Game engine
-│   ├── event_bus.py      # Event system
-│   ├── tick_system.py    # Game loop
-│   ├── engine.py         # Core engine
-│   ├── map.py            # Map management
-│   └── spawn.py          # Spawn system
-├── physics/              # Physics engine
-│   ├── vector.py         # Vector math
-│   ├── body.py           # Physics bodies
-│   ├── movement.py       # Movement
-│   └── projectile.py     # Projectiles
-├── collision/            # Collision detection
-├── plugins/              # Entity plugins
-│   ├── character.py      # Characters
-│   ├── weapon.py         # Weapons
-│   └── skill.py          # Skills
-├── observation/          # State observations
-│   ├── base.py           # Base classes
-│   ├── builder.py        # Observation builder
-│   └── *.py              # Observation types
-├── reward/              # Reward computation
-│   ├── base.py           # Base classes
-│   ├── builder.py        # Reward builder
-│   └── *.py              # Reward types
-├── trainer/              # Training
-│   ├── base.py           # Base trainer
-│   ├── ppo.py            # PPO implementation
-│   └── callbacks.py       # Training callbacks
-├── replay/               # Episode replay
-│   ├── base.py           # Replay classes
-│   └── recorder.py       # Recording
-├── api/                  # Dashboard API
-│   └── server.py         # FastAPI server
-├── cli/                  # CLI tools
-│   ├── main.py           # Main CLI
-│   └── commands.py       # Commands
-├── rendering/             # Rendering (future)
-├── utils/                # Utilities
-├── docs/                 # Documentation
-├── examples/             # Example scripts
-└── tests/                # Unit tests
+├── __init__.py              # Package init, make(), version
+├── version.py               # Version info
+├── config.py                # Configuration dataclasses
+├── constants.py             # Game constants
+│
+├── env/                     # RL Environments
+│   ├── battle_arena.py     # Main BattleArena env
+│   └── vectorized.py       # Vectorized wrapper
+│
+├── engine/                  # Game Engine
+│   ├── event_bus.py        # Pub/sub event system
+│   ├── tick_system.py      # Game loop (dt tracking)
+│   ├── map.py              # Map management
+│   └── spawn.py            # Spawn system
+│
+├── physics/                 # Physics Engine
+│   ├── vector.py          # Vector2D class
+│   ├── body.py             # PhysicsBody, DynamicBody
+│   └── movement.py         # MovementSystem
+│
+├── plugins/                 # Entity Plugins
+│   ├── character.py        # 55 characters
+│   ├── weapon.py          # 17 weapons
+│   └── skill.py           # 37 skills
+│
+├── trainer/                 # Training
+│   ├── ppo.py             # PPOTrainer
+│   └── callbacks.py       # CheckpointCallback
+│
+├── replay/                 # Replay System
+│   └── deterministic.py   # ReplayRecorder, ReplayPlayer
+│
+├── data/                   # Game Data
+│   ├── characters.json     # 55 characters
+│   ├── weapons.json       # 17 weapons
+│   └── skills.json        # 37 skills
+│
+├── rendering/              # Debug Rendering
+│   └── debug_renderer.py   # DebugRenderer
+│
+├── cli/                    # CLI Tools
+│   └── main.py            # Main CLI
+│
+├── examples/              # Examples
+│   └── quickstart.py      # Quick start
+│
+└── tests/                 # Test Suite (249 tests)
 ```
+
+---
 
 ## Creating Custom Plugins
 
@@ -108,22 +193,29 @@ zbgym/
 from zbgym.plugins.character import (
     Character,
     CharacterStats,
+    Ability,
     register_character,
 )
 
 @register_character(
-    "my_character",
-    "My Character",
-    CharacterStats(
+    character_id="my_hero",
+    name="My Hero",
+    stats=CharacterStats(
         max_health=200,
         max_shield=50,
+        max_energy=100,
         move_speed=350,
-    )
+        base_damage=15.0,
+    ),
+    abilities=[
+        Ability(id="Q", name="Skill Shot", ...),
+        Ability(id="E", name="Dash", ...),
+    ],
+    description="A balanced hero with good damage"
 )
-class MyCharacter(Character):
-    def special_ability(self):
-        # Custom ability implementation
-        pass
+class MyHeroCharacter(Character):
+    """Custom hero character."""
+    pass
 ```
 
 ### Custom Weapon
@@ -137,122 +229,92 @@ from zbgym.plugins.weapon import (
 )
 
 @register_weapon(
-    "plasma_gun",
-    "Plasma Gun",
-    WeaponType.ENERGY,
-    WeaponStats(
-        damage=25.0,
-        fire_rate=3.0,
-        magazine_size=20,
+    weapon_id="plasma_rifle",
+    name="Plasma Rifle",
+    weapon_type=WeaponType.ENERGY,
+    stats=WeaponStats(
+        damage=35.0,
+        fire_rate=5.0,
+        magazine_size=25,
         reload_time=2.5,
+        projectile_speed=1200.0,
+        range_val=500.0,
     )
 )
-class PlasmaGun(Weapon):
+class PlasmaRifle(Weapon):
+    """Custom energy weapon."""
     pass
 ```
 
-### Custom Skill
-
-```python
-from zbgym.plugins.skill import (
-    Skill,
-    SkillType,
-    SkillConfig,
-    register_skill,
-)
-
-@register_skill(
-    "teleport",
-    "Teleport",
-    SkillType.MOVEMENT,
-    SkillConfig(
-        cooldown=15.0,
-        energy_cost=30.0,
-        range=100.0,
-    )
-)
-class TeleportSkill(Skill):
-    pass
-```
-
-### Custom Observation
-
-```python
-from zbgym.observation import (
-    Observation,
-    ObservationConfig,
-    observation_registry,
-)
-
-class CustomObservation(Observation):
-    def __init__(self, config=None):
-        self.config = config or ObservationConfig()
-    
-    def get_dimension(self) -> int:
-        return 5  # Your observation dimension
-    
-    def compute(self, state):
-        # Compute observation from state
-        return np.array([...])
-
-observation_registry.register("custom", CustomObservation)
-```
-
-### Custom Reward
-
-```python
-from zbgym.reward import (
-    Reward,
-    RewardConfig,
-    reward_registry,
-)
-
-class CustomReward(Reward):
-    def __init__(self, config=None):
-        self.config = config or RewardConfig()
-    
-    def compute(self, state, prev_state=None):
-        # Compute reward
-        return 1.0
-
-reward_registry.register("custom", CustomReward)
-```
+---
 
 ## Environment Configuration
+
+### Basic Usage
 
 ```python
 import zbgym
 
-# Create environment
-env = zbgym.make(
-    "BattleArena-v1",
-    num_agents=4,
-    map_size="large",
-    config={
-        "tick_rate": 60,
-        "max_steps": 10000,
-    }
-)
+# Create with defaults
+env = zbgym.make("BattleArena-v1")
+obs, info = env.reset(seed=42)
 
-# Run episode
-obs, info = env.reset()
+# Step through episode
 for step in range(1000):
-    action = env.action_space.sample()
+    action = env.action_space.sample()  # Replace with your policy
     obs, reward, terminated, truncated, info = env.step(action)
+    
     if terminated or truncated:
-        break
+        obs, info = env.reset()
+
 env.close()
 ```
 
-## Training
+### Custom Configuration
 
 ```python
-from zbgym.trainer import PPOTrainer, TrainerConfig, CheckpointCallback
+from zbgym.config import EnvironmentConfig
+from zbgym.env.battle_arena import BattleArena
+
+config = EnvironmentConfig(
+    arena_width=2000,
+    arena_height=1500,
+    num_agents=4,
+    match_duration=600.0,
+    tick_rate=60,
+)
+
+env = BattleArena(
+    config=config,
+    render_mode="human",
+    obs_config={
+        "include_health": True,
+        "include_position": True,
+        "include_enemies": True,
+        "max_enemies": 8,
+    },
+    reward_config={
+        "kill_reward": 10.0,
+        "death_penalty": -5.0,
+        "survival_reward": 0.01,
+    },
+)
+```
+
+---
+
+## Training Agents
+
+### Basic PPO Training
+
+```python
+from zbgym.trainer import PPOTrainer, TrainerConfig
 
 config = TrainerConfig(
     env_id="BattleArena-v1",
-    total_timesteps=1_000_000,
+    total_timesteps=100_000,
     num_envs=4,
+    learning_rate=3e-4,
 )
 
 trainer = PPOTrainer(
@@ -263,36 +325,85 @@ trainer = PPOTrainer(
 
 trainer.setup()
 model = trainer.train()
+model.save("./models/ppo_final")
 ```
+
+---
 
 ## API Reference
 
-### Environment
+### Environment Methods
 
-- `zbgym.make(env_id, **kwargs)` - Create environment
-- `BattleArena.reset(seed)` - Reset environment
-- `BattleArena.step(action)` - Take action
-- `BattleArena.render()` - Render frame
-- `BattleArena.close()` - Close environment
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `make` | `(env_id, **kwargs)` | Create environment |
+| `reset` | `(seed=None)` | Reset environment |
+| `step` | `(action)` | Execute action |
+| `render` | `(mode=None)` | Render frame |
+| `close` | `()` | Clean up |
 
-### Engine
+### Spaces
 
-- `GameEngine` - Main game engine
-- `EventBus` - Event system
-- `TickSystem` - Game loop
-- `MapManager` - Map loading
+```python
+# Action Space
+env.action_space  # Box(-1, 1, shape=(4,))
+# [move_x, move_y, aim_x, aim_y]
 
-### Physics
+# Observation Space  
+env.observation_space  # Box(-inf, inf, shape=(50,))
+```
 
-- `Vector2D` / `Vector3D` - Vector operations
-- `DynamicBody` - Moving physics body
-- `Projectile` - Bullet physics
+---
 
-### Plugins
+## Debugging
 
-- `character_registry` - Character plugin registry
-- `weapon_registry` - Weapon plugin registry
-- `skill_registry` - Skill plugin registry
-- `create_character()` - Create character instance
-- `create_weapon()` - Create weapon instance
-- `create_skill()` - Create skill instance
+### Debug Rendering
+
+```python
+from zbgym.rendering import DebugRenderer
+
+env = zbgym.make("BattleArena-v1")
+renderer = DebugRenderer.from_env(env)
+
+for step in range(1000):
+    action = policy(obs)
+    obs, reward, terminated, truncated, info = env.step(action)
+    
+    # Render debug view
+    renderer.clear()
+    renderer.render_from_env(env)
+    img = renderer.to_image()
+    
+    if terminated or truncated:
+        break
+```
+
+### Check Determinism
+
+```python
+env1 = zbgym.make("BattleArena-v1")
+env2 = zbgym.make("BattleArena-v1")
+
+obs1, _ = env1.reset(seed=42)
+obs2, _ = env2.reset(seed=42)
+
+assert (obs1 == obs2).all(), "Not deterministic!"
+```
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Pull Request Checklist
+
+- [ ] Tests pass (`pytest`)
+- [ ] Code formatted (`ruff format`)
+- [ ] No linting errors (`ruff check`)
+- [ ] Type hints added
+- [ ] Docstrings added

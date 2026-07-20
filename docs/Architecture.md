@@ -1,76 +1,78 @@
 # ZBGym Architecture
 
+> **Alpha Version Documentation** - Last updated for v0.1.0-alpha
+
 ## Overview
 
-ZBGym is a professional Reinforcement Learning framework designed for battle arena simulations. It provides a Gymnasium-compatible environment with advanced physics, character systems, and training capabilities.
+ZBGym is a professional Reinforcement Learning framework designed for battle arena simulations. It provides a Gymnasium-compatible environment with advanced physics, combat systems, and training capabilities.
 
-## Architecture Diagram
+## High-Level Architecture
 
-```mermaid
-graph TB
-    subgraph "Core"
-        ENV[BattleArena Environment]
-        ENG[GameEngine]
-        OBS[Observation System]
-        REW[Reward System]
-    end
-    
-    subgraph "Physics"
-        PHY[Physics Engine]
-        COL[Collision System]
-        VEC[Vector Math]
-        PRO[Projectiles]
-    end
-    
-    subgraph "Entities"
-        CHAR[Characters]
-        WEAP[Weapons]
-        SKILL[Skills]
-    end
-    
-    subgraph "Training"
-        TRAIN[Trainer]
-        CALL[Callbacks]
-        REPL[Replay System]
-    end
-    
-    subgraph "Interface"
-        CLI[CLI Tools]
-        API[Dashboard API]
-        DOC[Documentation]
-    end
-    
-    ENV --> ENG
-    ENG --> PHY
-    ENG --> COL
-    ENG --> CHAR
-    ENG --> OBS
-    ENG --> REW
-    TRAIN --> ENV
-    REPL --> ENV
+```
+┌────────────────────────────────────────────────────────────────────┐
+│                           ZBGym System                               │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│   ┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐   │
+│   │     CLI     │    │  Dashboard  │    │      Trainer        │   │
+│   │  (Commands) │    │   (API)     │    │  (Stable-Baselines3)│   │
+│   └──────┬──────┘    └──────┬──────┘    └──────────┬──────────┘   │
+│          │                   │                        │              │
+│          └───────────────────┴────────────────────────┘              │
+│                                 │                                     │
+│                          ┌──────▼──────┐                             │
+│                          │ BattleArena │                             │
+│                          │   (Env)     │                             │
+│                          └──────┬──────┘                             │
+│                                 │                                     │
+│   ┌─────────────────────────────┼─────────────────────────────┐     │
+│   │                             │                             │     │
+│   │  ┌───────────┐  ┌──────────┴───┐  ┌────────────────┐   │     │
+│   │  │  Engine   │  │   Physics    │  │    Plugins     │   │     │
+│   │  │-EventBus  │  │ -Vector2D    │  │ -Characters(17)│   │     │
+│   │  │-TickSystem│  │ -Bodies      │  │ -Weapons(17)   │   │     │
+│   │  │-Spawn     │  │ -Movement     │  │ -Skills(37)    │   │     │
+│   │  │-Map       │  │ -Collision    │  │                │   │     │
+│   │  └───────────┘  └──────────────┘  └────────────────┘   │     │
+│   │                             │                             │     │
+│   │              ┌──────────────┴──────────────┐              │     │
+│   │              │        Reward System        │              │     │
+│   │              │  -Survival  -Combat         │              │     │
+│   │              │  -Movement  -Zone           │              │     │
+│   │              └─────────────────────────────┘              │     │
+│   └───────────────────────────────────────────────────────────┘     │
+│                                                                       │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Core Components
 
 ### 1. Environment (`zbgym.env`)
 
-The main RL environment that follows the Gymnasium API.
+The main RL environment following the Gymnasium API.
 
-- **BattleArena**: The primary environment for battle arena simulations
-- Compatible with `gymnasium.make()` interface
-- Supports vectorized environments for parallel training
+| Class | Description |
+|-------|-------------|
+| `BattleArena` | Primary battle arena environment |
+| `VectorizedBattleArena` | Parallel environment for vectorized training |
+| `SyncVectorizedEnv` | Synchronous vectorized wrapper |
+
+**Key Features:**
+- Fixed timestep (1/60s) for deterministic simulation
+- Combat system with auto-attack when in range
+- Zone damage for outside-safe-zone penalties
+- Episode termination on combat/winner/timeout
 
 ### 2. Engine (`zbgym.engine`)
 
 Core game engine components.
 
-| Component | Description |
-|-----------|-------------|
-| EventBus | Event-driven communication system |
-| TickSystem | Game loop management |
-| GameEngine | Main engine orchestrator |
-| MapManager | Map loading and management |
-| SpawnSystem | Character spawn/respawn logic |
+| Component | File | Description |
+|-----------|------|-------------|
+| EventBus | `event_bus.py` | Pub/sub event system |
+| TickSystem | `tick_system.py` | Game loop with dt tracking |
+| MapManager | `map.py` | Map loading/management |
+| SpawnSystem | `spawn.py` | Character spawn/respawn |
 
 ### 3. Physics (`zbgym.physics`)
 
@@ -78,118 +80,198 @@ Physics simulation components.
 
 | Component | Description |
 |-----------|-------------|
-| Vector2D/3D | Vector mathematics |
-| PhysicsBody | Base physics object |
-| DynamicBody | Moving physics objects |
-| Projectile | Bullet/projectile physics |
-| MovementSystem | Character movement |
+| `Vector2D` | 2D vector math (add, subtract, normalize, distance) |
+| `PhysicsBody` | Base physics object with position/radius |
+| `DynamicBody` | Moving physics body with velocity |
+| `MovementSystem` | Character movement calculations |
+| `CollisionSystem` | Circle-circle collision detection |
 
 ### 4. Plugins (`zbgym.plugins`)
 
-Extensible entity system.
+Extensible entity system using registry pattern.
 
-- **Characters**: Custom character types with stats and abilities
-- **Weapons**: Weapon types with firing mechanics
-- **Skills**: Active abilities with cooldowns
+```
+character_registry ─┬─ 55 characters from game dump
+                    │
+weapon_registry ────┼─ 17 weapons (rifle, pistol, shotgun, etc.)
+                    │
+skill_registry ─────┘─ 37 skills parsed from dump
+```
 
-### 5. Observation (`zbgym.observation`)
+**Plugin Registration:**
+```python
+@register_character("hero_id", "Hero Name", CharacterStats(...))
+class HeroCharacter(Character):
+    pass
+```
 
-State observation system.
-
-- Plugin-based observation builders
-- Automatic normalization
-- Configurable observation pipelines
-
-### 6. Reward (`zbgym.reward`)
-
-Reward computation system.
-
-- Modular reward components
-- Weighted composition
-- Configurable reward functions
-
-### 7. Trainer (`zbgym.trainer`)
+### 5. Training (`zbgym.trainer`)
 
 RL training infrastructure.
 
-- PPO implementation via Stable-Baselines3
-- Callbacks for checkpointing and evaluation
-- TensorBoard logging support
+| Component | Description |
+|-----------|-------------|
+| `PPOTrainer` | PPO training via Stable-Baselines3 |
+| `TrainerConfig` | Training hyperparameters |
+| `CheckpointCallback` | Model checkpointing |
+| `ProgressCallback` | Training progress logging |
 
-### 8. Replay (`zbgym.replay`)
+### 6. Replay (`zbgym.replay`)
 
 Episode recording and playback.
 
-- Compressed replay format
-- Replay buffer for analysis
-- Episode recording during training
+| Class | Description |
+|-------|-------------|
+| `ReplayRecorder` | Records episodes to file |
+| `ReplayPlayer` | Playback recorded episodes |
+| `DeterministicReplay` | Replay with determinism verification |
+| `DeterministicRecorder` | Alias for ReplayRecorder |
 
-### 9. API (`zbgym.api`)
+**File Format:** Custom binary format (.zbr) with zlib compression
 
-Dashboard backend.
+### 7. Data System (`zbgym.data`)
 
-- FastAPI REST endpoints
-- WebSocket support for real-time updates
-- Session and model management
+Game data loaded from dump parsing.
 
-### 10. CLI (`zbgym.cli`)
+| File | Content |
+|------|---------|
+| `characters.json` | 55 character configs |
+| `weapons.json` | 17 weapon configs |
+| `skills.json` | 37 skill configs |
 
-Command-line interface.
+### 8. Rendering (`zbgym.rendering`)
 
-- `zbgym init`: Initialize project
-- `zbgym train`: Train agent
-- `zbgym evaluate`: Evaluate model
-- `zbgym dashboard`: Start web dashboard
+Debug visualization system.
+
+| Class | Description |
+|-------|-------------|
+| `DebugRenderer` | Main debug renderer |
+| `DebugColor` | RGBA color definitions |
+| `DebugShape` | Shape primitives |
+| `DebugLayer` | Layer visibility control |
+
+## Environment API
+
+### Standard Gymnasium Interface
+
+```python
+import zbgym
+
+# Create
+env = zbgym.make("BattleArena-v1")
+
+# Reset
+obs, info = env.reset(seed=42)
+
+# Step
+for step in range(1000):
+    action = env.action_space.sample()
+    obs, reward, terminated, truncated, info = env.step(action)
+    if terminated or truncated:
+        obs, info = env.reset()
+
+# Close
+env.close()
+```
+
+### Action Space
+
+`Box(-1, 1, shape=(4,))` - Continuous actions
+- `[move_x, move_y, aim_x, aim_y]`
+- Values normalized to [-1, 1]
+
+### Observation Space
+
+`Box(-inf, inf, shape=(50,))` - 50-dimensional vector
+- Self: health, position (2), velocity (2), energy, shield
+- Zone: distance to safe zone center
+- Enemies: position (2), health per enemy (up to 8 enemies)
+
+### Reward Signals
+
+| Signal | Value | Trigger |
+|--------|-------|---------|
+| `survival_reward` | +0.01 | Per step alive |
+| `movement_reward` | +0.02×mag | Moving |
+| `damage_reward` | +0.1×damage | Combat |
+| `kill_reward` | +10.0 | Enemy killed |
+| `death_penalty` | -5.0 | Agent died |
+| `idle_penalty` | -0.01 | No movement |
+| `zone_danger` | -0.02 | Outside safe zone |
 
 ## Data Flow
 
-```mermaid
-sequenceDiagram
-    participant Agent
-    participant Env as Environment
-    participant Engine
-    participant Physics
-    participant Plugins
-
-    Agent->>Env: action
-    Env->>Engine: step()
-    Engine->>Plugins: update()
-    Engine->>Physics: simulate()
-    Engine->>Engine: process_events()
-    Plugins->>Engine: events
-    Engine->>Env: observation, reward
-    Env->>Agent: observation, reward
 ```
-
-## Plugin System
-
-ZBGym uses a registry-based plugin system:
-
-```python
-@register_character("soldier", "Soldier", CharacterStats())
-class SoldierCharacter(Character):
-    pass
-
-@register_weapon("rifle", "Assault Rifle", WeaponType.RIFLE, WeaponStats(...))
-class Rifle(Weapon):
-    pass
+Agent Policy
+     │
+     ▼ action
+┌────────────┐
+│  Env.step  │
+└─────┬──────┘
+      │
+      ▼
+┌────────────────────────────────────────┐
+│         Engine Update (dt=1/60)          │
+│  ┌──────────────────────────────────┐  │
+│  │ 1. Process action                 │  │
+│  │ 2. Update positions              │  │
+│  │ 3. Combat (auto-attack)          │  │
+│  │ 4. Zone damage                   │  │
+│  │ 5. Check termination            │  │
+│  └──────────────────────────────────┘  │
+└─────────────┬──────────────────────────┘
+              │
+              ▼
+┌────────────────────────────────────────┐
+│           Compute Reward               │
+│  - Damage delta detection              │
+│  - Kill/death tracking                │
+│  - Health-based signals               │
+└─────────────┬──────────────────────────┘
+              │
+              ▼
+       obs, reward, terminated, truncated, info
 ```
 
 ## Configuration
 
-YAML-based configuration:
+### Environment Config
 
-```yaml
-env_id: BattleArena-v1
-algorithm: PPO
-total_timesteps: 1000000
-learning_rate: 3e-4
-num_envs: 4
+```python
+from zbgym.config import EnvironmentConfig
+
+config = EnvironmentConfig(
+    arena_width=2000,
+    arena_height=1500,
+    num_agents=2,
+    match_duration=600.0,  # seconds
+    tick_rate=60,
+)
+```
+
+### Trainer Config
+
+```python
+from zbgym.trainer import TrainerConfig
+
+config = TrainerConfig(
+    env_id="BattleArena-v1",
+    total_timesteps=1_000_000,
+    num_envs=4,
+    learning_rate=3e-4,
+    n_steps=2048,
+    batch_size=64,
+)
 ```
 
 ## Dependencies
 
-- **Core**: numpy, gymnasium
-- **Training**: stable-baselines3, torch
-- **Dashboard**: fastapi, uvicorn
-- **Dev**: pytest, ruff, mypy
+| Package | Version | Purpose |
+|---------|---------|---------|
+| numpy | ≥1.20 | Numerical computing |
+| gymnasium | ≥0.28 | RL environment interface |
+| stable-baselines3 | ≥2.0 | RL algorithms |
+| torch | ≥2.0 | Neural networks |
+| fastapi | ≥0.100 | Dashboard API (optional) |
+| pytest | ≥7.0 | Testing |
+| ruff | ≥0.1 | Linting/formatting |
