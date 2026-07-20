@@ -1,44 +1,22 @@
 {
-  "physics": {
-    "DEFAULT_GRAVITY": 980.0,
-    "DEFAULT_FRICTION": 0.98,
-    "DEFAULT_AIR_RESISTANCE": 0.99,
-    "DEFAULT_MAX_SPEED": 500.0,
-    "DEFAULT_DASH_SPEED": 1000.0,
-    "DEFAULT_JUMP_FORCE": 400.0
-  },
-  "game": {
-    "DEFAULT_TICK_RATE": 60,
-    "DEFAULT_FRAME_RATE": 30,
-    "MAX_ENTITIES": 100,
-    "MAX_PROJECTILES": 500,
-    "MAX_ITEMS": 200
-  },
-  "arena": {
-    "DEFAULT_ARENA_WIDTH": 2000,
-    "DEFAULT_ARENA_HEIGHT": 1500,
-    "SAFE_ZONE_SHRINK_RATE": 0.5
-  },
-  "character": {
-    "MAX_HEALTH": 100,
-    "MAX_SHIELD": 50,
-    "MAX_ENERGY": 100,
-    "START_AMMO": 30,
-    "MAX_AMMO": 120,
-    "RESPAWN_TIME": 5.0
-  },
-  "combat": {
-    "HEADSHOT_MULTIPLIER": 1.5,
-    "CRITICAL_MULTIPLIER": 1.25,
-    "MAX_DAMAGE_DISTANCE": 1000.0,
-    "MIN_DAMAGE_RATIO": 0.5
-  },
-  "reward": {
-    "KILL_REWARD": 10.0,
-    "ASSIST_REWARD": 3.0,
-    "DEATH_PENALTY": -5.0,
-    "DAMAGE_REWARD_RATIO": 0.1,
-    "SURVIVAL_TIME_REWARD": 0.1,
-    "IDLE_PENALTY": -0.01
-  }
+  "fixed_delta_time": 0.05,
+  "ticks_per_second": 20,
+  "frame_rate": 60,
+  "max_speed": 22.0,
+  "min_speed": 0.5,
+  "player_movement_sync_update": 20,
+  "knockback_latency_delay": 2,
+  "max_hit_colliders": 50,
+  "strong_damage_tier": 200,
+  "medium_damage_tier": 100,
+  "bot_score": 500,
+  "trophies_constant": 3,
+  "max_players": 10,
+  "map_size": 55.0,
+  "red_zone_sound_max_distance": 40,
+  "metagame_max_health": 185.0,
+  "metagame_max_damage": 160.0,
+  "metagame_max_speed": 22.0,
+  "min_health_for_hp_bar": 1000,
+  "max_health_for_hp_bar": 4000
 }

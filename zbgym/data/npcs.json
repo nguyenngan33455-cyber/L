@@ -1,0 +1,83 @@
+{
+  "male_guard": {
+    "enum_id": 0,
+    "name": "MaleGuard",
+    "npc_id": "male_guard",
+    "npc_type": "guard",
+    "parent_key": "",
+    "is_guard": true,
+    "is_unique": false
+  },
+  "female_guard": {
+    "enum_id": 1,
+    "name": "FemaleGuard",
+    "npc_id": "female_guard",
+    "npc_type": "guard",
+    "parent_key": "",
+    "is_guard": true,
+    "is_unique": false
+  },
+  "male_unique_guard": {
+    "enum_id": 2,
+    "name": "MaleUniqueGuard",
+    "npc_id": "male_unique_guard",
+    "npc_type": "guard",
+    "parent_key": "",
+    "is_guard": true,
+    "is_unique": true
+  },
+  "female_unique_guard": {
+    "enum_id": 3,
+    "name": "FemaleUniqueGuard",
+    "npc_id": "female_unique_guard",
+    "npc_type": "guard",
+    "parent_key": "",
+    "is_guard": true,
+    "is_unique": true
+  },
+  "joey": {
+    "enum_id": 4,
+    "name": "Joey",
+    "npc_id": "joey",
+    "npc_type": "guard",
+    "parent_key": "",
+    "is_guard": false,
+    "is_unique": false
+  },
+  "rat_minion": {
+    "enum_id": 5,
+    "name": "RatMinion",
+    "npc_id": "rat_minion",
+    "npc_type": "minion",
+    "parent_key": "",
+    "is_guard": false,
+    "is_unique": false
+  },
+  "ox_pecker": {
+    "enum_id": 6,
+    "name": "OxPecker",
+    "npc_id": "ox_pecker",
+    "npc_type": "guard",
+    "parent_key": "",
+    "is_guard": false,
+    "is_unique": false
+  },
+  "bee_turret": {
+    "enum_id": 7,
+    "name": "BeeTurret",
+    "npc_id": "bee_turret",
+    "npc_type": "turret",
+    "parent_key": "",
+    "is_guard": false,
+    "is_unique": false
+  },
+  "crow_totem": {
+    "enum_id": 8,
+    "name": "CrowTotem",
+    "npc_id": "crow_totem",
+    "npc_type": "totem",
+    "parent_key": "",
+    "is_guard": false,
+    "is_unique": false
+  }
+}
