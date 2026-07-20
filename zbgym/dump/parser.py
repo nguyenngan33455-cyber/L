@@ -577,9 +577,17 @@ class DumpParser:
         if not self._skill_category_enum:
             self.parse_enums()
         
+        # Skip these enum values (not actual skills)
+        skip_names = {
+            'None', 'MinValue', 'MaxValue',
+            'SpecialMinValue', 'SpecialMaxValue',
+            'WeaponMinValue', 'WeaponMaxValue',
+            'ConsumableMinValue', 'ConsumableMaxValue',
+        }
+        
         # Extract skill categories
         for cat_name, cat_id in self._skill_category_enum.items():
-            if cat_name == 'None':
+            if cat_name in skip_names:
                 continue
             
             skill_id = self._name_to_id(cat_name).lower()
