@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 from abc import ABC, abstractmethod
@@ -11,6 +12,10 @@ from pathlib import Path
 from typing import Any, Callable
 
 import numpy as np
+
+from zbgym.dashboard.manager import DashboardManager, DashboardManagerConfig
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -87,6 +92,7 @@ class BaseTrainer(ABC):
     - Progress tracking
     - Logging
     - Evaluation
+    - Dashboard integration (optional)
     """
 
     def __init__(
@@ -94,6 +100,10 @@ class BaseTrainer(ABC):
         config: TrainerConfig | None = None,
         model_save_dir: str | Path = "./models",
         log_dir: str | Path = "./logs",
+        dashboard: DashboardManagerConfig | DashboardManager | bool | None = None,
+        dashboard_url: str | None = None,
+        dashboard_api_key: str | None = None,
+        dashboard_publish_interval: int = 100,
     ) -> None:
         """
         Initialize trainer.
@@ -102,6 +112,11 @@ class BaseTrainer(ABC):
             config: Training configuration
             model_save_dir: Directory to save models
             log_dir: Directory for logs
+            dashboard: Dashboard configuration (DashboardManagerConfig,
+                     DashboardManager instance, bool, or None)
+            dashboard_url: Dashboard server URL (if dashboard=True)
+            dashboard_api_key: Dashboard API key (if dashboard=True)
+            dashboard_publish_interval: Publish metrics every N timesteps
         """
         self.config = config or TrainerConfig()
         self.model_save_dir = Path(model_save_dir)
@@ -112,6 +127,59 @@ class BaseTrainer(ABC):
         self.stats = TrainingStats()
         self.start_time: float = 0.0
         self.model: Any = None
+
+        # Initialize dashboard manager
+        self._init_dashboard(
+            dashboard,
+            dashboard_url,
+            dashboard_api_key,
+            dashboard_publish_interval,
+        )
+
+    def _init_dashboard(
+        self,
+        dashboard: DashboardManagerConfig | DashboardManager | bool | None,
+        dashboard_url: str | None,
+        dashboard_api_key: str | None,
+        dashboard_publish_interval: int,
+    ) -> None:
+        """Initialize dashboard manager.
+
+        Args:
+            dashboard: Dashboard configuration.
+            dashboard_url: Dashboard URL.
+            dashboard_api_key: Dashboard API key.
+            dashboard_publish_interval: Publish interval.
+        """
+        if dashboard is None or dashboard is False:
+            self._dashboard: DashboardManager | None = None
+            return
+
+        if isinstance(dashboard, DashboardManager):
+            self._dashboard = dashboard
+            return
+
+        if isinstance(dashboard, DashboardManagerConfig):
+            self._dashboard = DashboardManager(dashboard)
+            return
+
+        # dashboard is True or a dict-like config
+        if dashboard is True or isinstance(dashboard, dict):
+            config = DashboardManagerConfig(
+                enabled=True,
+                url=dashboard_url or "http://localhost:8080",
+                api_key=dashboard_api_key,
+                publish_interval=dashboard_publish_interval,
+            )
+            self._dashboard = DashboardManager(config)
+            return
+
+        self._dashboard = None
+
+    @property
+    def dashboard(self) -> DashboardManager | None:
+        """Get dashboard manager."""
+        return self._dashboard
 
     @abstractmethod
     def setup(self) -> None:

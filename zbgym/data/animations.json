@@ -1,0 +1,38 @@
+{
+  "idle": {
+    "duration": 1.0,
+    "loop": true
+  },
+  "walk": {
+    "duration": 0.5,
+    "loop": true
+  },
+  "run": {
+    "duration": 0.3,
+    "loop": true
+  },
+  "jump": {
+    "duration": 0.4,
+    "loop": false
+  },
+  "fall": {
+    "duration": 0.3,
+    "loop": true
+  },
+  "attack": {
+    "duration": 0.2,
+    "loop": false
+  },
+  "skill": {
+    "duration": 0.5,
+    "loop": false
+  },
+  "death": {
+    "duration": 1.0,
+    "loop": false
+  },
+  "respawn": {
+    "duration": 1.5,
+    "loop": false
+  }
+}

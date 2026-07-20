@@ -1,0 +1,30 @@
+{
+  "bullet": {
+    "name": "Bullet",
+    "description": "Standard bullet damage"
+  },
+  "melee": {
+    "name": "Melee",
+    "description": "Close range weapon damage"
+  },
+  "explosion": {
+    "name": "Explosion",
+    "description": "Area explosion damage"
+  },
+  "burn": {
+    "name": "Burn",
+    "description": "Fire damage over time"
+  },
+  "poison": {
+    "name": "Poison",
+    "description": "Damage over time"
+  },
+  "true": {
+    "name": "True",
+    "description": "Ignores armor and shields"
+  },
+  "fall": {
+    "name": "Fall",
+    "description": "Fall damage"
+  }
+}

@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Any, Callable
 
 import numpy as np
 
+from zbgym.dashboard.callback import DashboardCallback
+from zbgym.dashboard.manager import DashboardManager, DashboardManagerConfig
 from zbgym.trainer.base import BaseTrainer, TrainerConfig, TrainingStats
 
 
@@ -16,6 +19,8 @@ class PPOTrainer(BaseTrainer):
 
     Proximal Policy Optimization (PPO) is an on-policy algorithm
     suitable for discrete and continuous action spaces.
+
+    Supports optional Dashboard integration for tracking training metrics.
     """
 
     def __init__(
@@ -23,6 +28,10 @@ class PPOTrainer(BaseTrainer):
         config: TrainerConfig | None = None,
         model_save_dir: str | Path = "./models",
         log_dir: str | Path = "./logs",
+        dashboard: DashboardManagerConfig | DashboardManager | bool | None = None,
+        dashboard_url: str | None = None,
+        dashboard_api_key: str | None = None,
+        dashboard_publish_interval: int = 100,
     ) -> None:
         """
         Initialize PPO trainer.
@@ -31,10 +40,24 @@ class PPOTrainer(BaseTrainer):
             config: Training configuration
             model_save_dir: Directory to save models
             log_dir: Directory for logs
+            dashboard: Dashboard configuration (DashboardManagerConfig,
+                     DashboardManager instance, bool, or None)
+            dashboard_url: Dashboard server URL (if dashboard=True)
+            dashboard_api_key: Dashboard API key (if dashboard=True)
+            dashboard_publish_interval: Publish metrics every N timesteps
         """
-        super().__init__(config, model_save_dir, log_dir)
+        super().__init__(
+            config=config,
+            model_save_dir=model_save_dir,
+            log_dir=log_dir,
+            dashboard=dashboard,
+            dashboard_url=dashboard_url,
+            dashboard_api_key=dashboard_api_key,
+            dashboard_publish_interval=dashboard_publish_interval,
+        )
         self._env = None
         self._vec_env = None
+        self._training_start_time: float = 0
 
     def setup(self) -> None:
         """Setup training environment and PPO model."""
@@ -90,17 +113,68 @@ class PPOTrainer(BaseTrainer):
             self.setup()
 
         self.start_time = self._get_time()
+        self._training_start_time = time.time()
 
-        self.model.learn(
-            total_timesteps=self.config.total_timesteps,
-            callback=callback,
-            progress_bar=True,
-            reset_num_timesteps=True,
-        )
+        # Start dashboard session if enabled
+        if self._dashboard and self._dashboard.is_enabled:
+            try:
+                self._dashboard.start_session(
+                    project="ZBGym",
+                    trainer="PPO",
+                    env=self.config.env_id,
+                    total_timesteps=self.config.total_timesteps,
+                )
+            except Exception as e:
+                self._log(f"Dashboard start failed: {e}, continuing without dashboard")
 
-        self.stats.time_elapsed = self._get_time() - self.start_time
+        # Create dashboard callback if dashboard is enabled
+        dashboard_callback = None
+        if self._dashboard and self._dashboard.is_enabled:
+            dashboard_callback = DashboardCallback(
+                self._dashboard,
+                publish_freq=self._dashboard._config.publish_interval,
+            )
+
+        # Combine callbacks
+        if callback is not None and dashboard_callback is not None:
+            from zbgym.trainer.callbacks import CallbackList
+            if isinstance(callback, CallbackList):
+                callback.callbacks.append(dashboard_callback)
+            else:
+                callback = CallbackList([callback, dashboard_callback])
+        elif dashboard_callback is not None:
+            callback = dashboard_callback
+
+        try:
+            self.model.learn(
+                total_timesteps=self.config.total_timesteps,
+                callback=callback,
+                progress_bar=True,
+                reset_num_timesteps=True,
+            )
+
+            self.stats.time_elapsed = self._get_time() - self.start_time
+
+        finally:
+            # Finish dashboard session
+            if self._dashboard and self._dashboard.is_enabled:
+                try:
+                    self._dashboard.finish_session(
+                        status="finished",
+                        final_metrics={
+                            "total_timesteps": self.config.total_timesteps,
+                            "duration": time.time() - self._training_start_time,
+                        },
+                    )
+                except Exception as e:
+                    self._log(f"Dashboard finish failed: {e}")
 
         return self.model
+
+    def _log(self, message: str) -> None:
+        """Log message if verbose is enabled."""
+        if self.config.verbose > 0:
+            print(message)
 
     def predict(self, observation: np.ndarray, deterministic: bool = True) -> tuple:
         """

@@ -1,0 +1,57 @@
+{
+  "stun": {
+    "name": "Stun",
+    "duration": 1.0,
+    "type": "control"
+  },
+  "slow": {
+    "name": "Slow",
+    "duration": 2.0,
+    "speed_modifier": 0.5,
+    "type": "debuff"
+  },
+  "speed_boost": {
+    "name": "Speed Boost",
+    "duration": 3.0,
+    "speed_modifier": 1.5,
+    "type": "buff"
+  },
+  "damage_boost": {
+    "name": "Damage Boost",
+    "duration": 5.0,
+    "damage_modifier": 1.25,
+    "type": "buff"
+  },
+  "invulnerable": {
+    "name": "Invulnerable",
+    "duration": 2.0,
+    "type": "buff"
+  },
+  "invisible": {
+    "name": "Invisible",
+    "duration": 3.0,
+    "type": "buff"
+  },
+  "burning": {
+    "name": "Burning",
+    "duration": 3.0,
+    "damage_per_second": 10.0,
+    "type": "dot"
+  },
+  "poisoned": {
+    "name": "Poisoned",
+    "duration": 5.0,
+    "damage_per_second": 5.0,
+    "type": "dot"
+  },
+  "frozen": {
+    "name": "Frozen",
+    "duration": 1.5,
+    "type": "control"
+  },
+  "blind": {
+    "name": "Blind",
+    "duration": 2.0,
+    "type": "debuff"
+  }
+}

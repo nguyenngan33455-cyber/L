@@ -1,0 +1,41 @@
+{
+  "weapon_common": {
+    "name": "Common Weapon",
+    "type": "weapon",
+    "rarity": "common",
+    "stats_multiplier": 1.0
+  },
+  "weapon_rare": {
+    "name": "Rare Weapon",
+    "type": "weapon",
+    "rarity": "rare",
+    "stats_multiplier": 1.25
+  },
+  "weapon_epic": {
+    "name": "Epic Weapon",
+    "type": "weapon",
+    "rarity": "epic",
+    "stats_multiplier": 1.5
+  },
+  "weapon_legendary": {
+    "name": "Legendary Weapon",
+    "type": "weapon",
+    "rarity": "legendary",
+    "stats_multiplier": 2.0
+  },
+  "health_pack": {
+    "name": "Health Pack",
+    "type": "consumable",
+    "healing": 50.0
+  },
+  "shield_potion": {
+    "name": "Shield Potion",
+    "type": "consumable",
+    "shield": 25.0
+  },
+  "speed_boost": {
+    "name": "Speed Boost",
+    "type": "buff",
+    "duration": 5.0
+  }
+}

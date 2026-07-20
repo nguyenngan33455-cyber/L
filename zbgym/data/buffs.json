@@ -1,0 +1,32 @@
+{
+  "health_regen": {
+    "name": "Health Regeneration",
+    "type": "regen",
+    "healing_per_second": 5.0
+  },
+  "shield_regen": {
+    "name": "Shield Regeneration",
+    "type": "regen",
+    "shield_per_second": 2.0
+  },
+  "energy_regen": {
+    "name": "Energy Regeneration",
+    "type": "regen",
+    "energy_per_second": 3.0
+  },
+  "damage_boost": {
+    "name": "Damage Boost",
+    "type": "buff",
+    "damage_modifier": 1.25
+  },
+  "speed_boost": {
+    "name": "Speed Boost",
+    "type": "buff",
+    "speed_modifier": 1.5
+  },
+  "armor_boost": {
+    "name": "Armor Boost",
+    "type": "buff",
+    "armor_modifier": 1.5
+  }
+}

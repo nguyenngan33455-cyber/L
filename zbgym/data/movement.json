@@ -1,0 +1,26 @@
+{
+  "walk": {
+    "speed": 300.0,
+    "acceleration": 1000.0,
+    "deceleration": 2000.0
+  },
+  "sprint": {
+    "speed": 450.0,
+    "acceleration": 800.0,
+    "deceleration": 1500.0
+  },
+  "dash": {
+    "speed": 1000.0,
+    "duration": 0.2,
+    "cooldown": 3.0
+  },
+  "jump": {
+    "force": 400.0,
+    "gravity": 980.0,
+    "air_control": 0.5
+  },
+  "crouch": {
+    "speed_modifier": 0.5,
+    "hitbox_shrink": 0.5
+  }
+}

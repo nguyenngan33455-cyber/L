@@ -101,3 +101,28 @@ __all__ = [
 
 __version__ = ZBGYM_VERSION
 
+
+# Dashboard Manager
+from zbgym.dashboard.manager import (
+    DashboardManager,
+    DashboardManagerConfig,
+    get_dashboard_manager,
+    configure_dashboard,
+)
+from zbgym.dashboard.callback import (
+    DashboardCallback,
+    DashboardMetricsCallback,
+    DashboardCheckpointCallback,
+)
+
+__all__ += [
+    # Manager
+    "DashboardManager",
+    "DashboardManagerConfig",
+    "get_dashboard_manager",
+    "configure_dashboard",
+    # Callback
+    "DashboardCallback",
+    "DashboardMetricsCallback",
+    "DashboardCheckpointCallback",
+]
