@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Callable
 
@@ -77,6 +78,7 @@ class Character(Plugin):
         character_id: str,
         team: str = "none",
         event_bus: EventBus | None = None,
+        seed: int | None = None,
     ) -> None:
         """
         Initialize character.
@@ -85,10 +87,14 @@ class Character(Plugin):
             character_id: Unique ID for this character instance
             team: Team identifier
             event_bus: Event bus for character events
+            seed: Random seed for deterministic behavior
         """
         self.character_id = character_id
         self.team = team
         self.event_bus = event_bus
+
+        # Deterministic RNG
+        self._rng = random.Random(seed)
 
         # State
         self.health = self.config.stats.max_health
@@ -171,11 +177,9 @@ class Character(Plugin):
         if is_headshot:
             damage *= self.config.stats.headshot_multiplier
 
-        # Apply critical
+        # Apply critical using seeded RNG
         if not is_headshot and self.config.stats.critical_chance > 0:
-            import random
-
-            if random.random() < self.config.stats.critical_chance:
+            if self._rng.random() < self.config.stats.critical_chance:
                 damage *= self.config.stats.critical_multiplier
 
         # Damage shield first

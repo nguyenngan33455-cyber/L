@@ -88,7 +88,7 @@ def make(env_id: str, **kwargs: Any) -> "BattleArena":
     except Exception:
         pass
 
-    raise Error(f"Environment '{env_id}' not found. Did you register it?")
+    raise ValueError(f"Environment '{env_id}' not found. Did you register it?")
 
 
 def list_envs() -> list[str]:

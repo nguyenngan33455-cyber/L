@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -75,16 +76,21 @@ class Weapon(Plugin):
         self,
         owner_id: str | None = None,
         event_bus: EventBus | None = None,
+        seed: int | None = None,
     ) -> None:
         """
         Initialize weapon.
 
         Args:
-            owner_id: ID of character holding this weapon
+            owner_id: ID of the character owning this weapon
             event_bus: Event bus for weapon events
+            seed: Random seed for deterministic behavior
         """
         self.owner_id = owner_id
         self.event_bus = event_bus
+
+        # Deterministic RNG
+        self._rng = random.Random(seed)
 
         # Ammo state
         self.current_ammo = self.config.stats.magazine_size
@@ -148,13 +154,12 @@ class Weapon(Plugin):
 
         # Create projectiles
         for i in range(self.config.stats.projectile_count):
-            # Apply spread
-            import random
+            # Apply spread using seeded RNG
             import math
 
             spread = self.config.stats.spread
             if spread > 0:
-                angle_offset = random.gauss(0, spread)
+                angle_offset = self._rng.gauss(0, spread)
             else:
                 angle_offset = 0.0
 

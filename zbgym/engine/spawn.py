@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable
 
@@ -20,6 +21,7 @@ class SpawnConfig:
     max_respawn_attempts: int = 10
     spawn_radius: float = 50.0
     prevent_spawn_kill: bool = True
+    seed: int | None = None
 
 
 class SpawnSystem:
@@ -31,6 +33,7 @@ class SpawnSystem:
     - Respawn timers
     - Spawn protection
     - Spawn point selection
+    - Deterministic spawn with seeded RNG
     """
 
     def __init__(
@@ -50,6 +53,9 @@ class SpawnSystem:
         self.config = config or SpawnConfig()
         self.map_manager = map_manager
         self.event_bus = event_bus
+
+        # Deterministic RNG
+        self._rng = random.Random(self.config.seed)
 
         # Spawn state
         self._pending_respawns: dict[str, float] = {}
@@ -104,7 +110,7 @@ class SpawnSystem:
     def _select_spawn_point(
         self, team: str | None = None
     ) -> SpawnPoint | None:
-        """Select an available spawn point."""
+        """Select an available spawn point using deterministic RNG."""
         if self.map_manager is None:
             return None
 
@@ -132,9 +138,11 @@ class SpawnSystem:
         if not available:
             return None
 
-        import random
+        return self._rng.choice(available)
 
-        return random.choice(available)
+    def set_seed(self, seed: int) -> None:
+        """Set RNG seed for deterministic spawning."""
+        self._rng.seed(seed)
 
     def update(self, dt: float) -> None:
         """Update spawn system."""

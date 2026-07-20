@@ -323,18 +323,20 @@ class EventBus:
         Returns:
             The event if received, None if timeout
         """
+        import threading
         import time
 
         result: list[Event] = []
+        event_received = threading.Event()
 
         def capture(event: Event) -> None:
             result.append(event)
+            event_received.set()
 
         sub_id = self.subscribe(event_type, capture)
-        start = time.time()
 
-        while not result and (time.time() - start) < timeout:
-            pass  # In real implementation, this would use threading/async
+        # Wait with timeout
+        event_received.wait(timeout=timeout)
 
         self.unsubscribe(sub_id)
         return result[0] if result else None

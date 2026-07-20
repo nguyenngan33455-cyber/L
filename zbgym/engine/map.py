@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -87,11 +88,12 @@ class MapData:
 
 
 class MapManager:
-    """Manages map loading and navigation."""
+    """Manages map loading and navigation with deterministic spawn selection."""
 
-    def __init__(self) -> None:
+    def __init__(self, seed: int | None = None) -> None:
         self._maps: dict[str, MapData] = {}
         self._current_map: MapData | None = None
+        self._rng = random.Random(seed)
 
         # Register default map
         self.register_map(MapData.default_map())
@@ -112,7 +114,7 @@ class MapManager:
         return self._current_map
 
     def get_spawn_point(self, team: str | None = None) -> SpawnPoint | None:
-        """Get a spawn point for a team."""
+        """Get a spawn point for a team using deterministic RNG."""
         if self._current_map is None:
             return None
 
@@ -123,10 +125,12 @@ class MapManager:
                 candidates = team_spawns
 
         if candidates:
-            import random
-
-            return random.choice(candidates)
+            return self._rng.choice(candidates)
         return None
+
+    def set_seed(self, seed: int) -> None:
+        """Set RNG seed for deterministic spawn selection."""
+        self._rng.seed(seed)
 
     def is_position_valid(self, position: Vector2D) -> bool:
         """Check if position is valid (within bounds)."""
