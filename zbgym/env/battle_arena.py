@@ -129,7 +129,9 @@ class BattleArena(gym.Env):
         self._state = BattleArenaState()
         self._action_history: list[dict] = []
         self._episode_reward = 0.0
-        self._max_episode_steps = 10000
+        # Max episode steps: 1000 for faster training cycles
+        # Can be overridden via config
+        self._max_episode_steps = getattr(config, 'max_episode_steps', 1000) if config else 1000
         self._current_step = 0
 
         # Spaces
@@ -237,8 +239,9 @@ class BattleArena(gym.Env):
         # Initialize characters with deterministic spawn
         self._init_characters()
 
-        # Reset systems with seed
+        # Reset systems with seed and start tick system
         self.tick_system.reset()
+        self.tick_system.start()  # Start tick system for dt calculation
         self.movement_system.reset_all()
         self._action_history.clear()
         self._episode_reward = 0.0
@@ -406,10 +409,11 @@ class BattleArena(gym.Env):
 
     def _update(self) -> None:
         """Update game state by one tick."""
-        # Advance tick
-        dt = self.tick_system.tick()
-        self._state.tick = self.tick_system.current_tick
-        self._state.elapsed_time = self.tick_system.elapsed_time
+        # Use fixed dt for RL simulation (60 fps = 1/60 seconds per tick)
+        # This ensures consistent behavior regardless of real-time execution
+        dt = 1.0 / 60.0  # ~0.0167 seconds per step
+        self._state.tick += 1
+        self._state.elapsed_time += dt
 
         # Update characters
         for char_id, char in self._state.characters.items():
@@ -434,13 +438,69 @@ class BattleArena(gym.Env):
             # Regenerate energy
             char.energy = min(MAX_ENERGY, char.energy + 5.0 * dt)
 
-        # Check zone damage
-        self._update_zone()
+        # Combat: Characters attack nearby enemies
+        self._update_combat(dt)
 
-    def _update_zone(self) -> None:
-        """Update safe/danger zone."""
+        # Check zone damage with dt
+        self._update_zone(dt)
+    
+    def _update_combat(self, dt: float = 1.0) -> None:
+        """Handle character-to-character combat.
+        
+        Auto-attack system:
+        - Characters within attack range deal damage to each other
+        - Damage scaled by dt for time consistency
+        """
+        attack_range = 100.0  # pixels
+        base_damage = 100.0  # damage per second (higher for faster combat)
+        
+        for attacker in self._state.characters.values():
+            if not attacker.is_alive:
+                continue
+            
+            for target in self._state.characters.values():
+                if target.id == attacker.id or not target.is_alive:
+                    continue
+                
+                # Check if in range
+                distance = attacker.position.distance_to(target.position)
+                if distance <= attack_range:
+                    # Deal damage
+                    damage = base_damage * dt
+                    target.health -= damage
+                    attacker.damage_dealt += damage
+                    target.damage_taken += damage
+                    
+                    # Check for kill
+                    if target.health <= 0:
+                        target.health = 0
+                        target.is_alive = False
+                        target.deaths += 1
+                        attacker.kills += 1
+                        
+                        # Emit death event
+                        self.event_bus.emit(
+                            Event(
+                                type="character_death",
+                                data={
+                                    "character_id": target.id,
+                                    "killer_id": attacker.id,
+                                    "position": target.position.to_dict(),
+                                },
+                            )
+                        )
+
+    def _update_zone(self, dt: float = 1.0) -> None:
+        """Update safe/danger zone.
+        
+        Args:
+            dt: Delta time in seconds
+        """
         center = self._state.safe_zone_center
         safe_radius = self._state.safe_zone_radius
+        
+        # Zone damage rate (per second when outside zone)
+        zone_damage_rate = 100.0  # HP per second
 
         for char in self._state.characters.values():
             if not char.is_alive:
@@ -448,9 +508,10 @@ class BattleArena(gym.Env):
 
             distance = char.position.distance_to(center)
             if distance > safe_radius:
-                # Zone damage
-                damage = (distance - safe_radius) * 0.1
+                # Zone damage scaled by dt
+                damage = zone_damage_rate * dt
                 char.health -= damage
+                char.damage_taken += damage
 
                 if char.health <= 0:
                     char.health = 0
@@ -545,24 +606,27 @@ class BattleArena(gym.Env):
         }
 
     def _is_terminated(self) -> bool:
-        """Check if episode is terminated."""
+        """Check if episode is terminated (natural end conditions).
+        
+        Gymnasium standard:
+        - terminated = episode ended due to environment (all dead, winner, time limit)
+        - truncated = episode ended due to external constraint (max steps)
+        """
         alive_agents = [c for c in self._state.characters.values() if c.is_alive]
         
-        # Check if all dead
+        # Check if all dead (natural death)
         if len(alive_agents) == 0:
             return True
         
-        # Check if only 1 agent remains (winner)
+        # Check if only 1 agent remains (natural winner)
         if len(alive_agents) == 1:
             return True
         
-        # Check time limit
+        # Check time limit (natural timeout)
         if self._state.elapsed_time >= self._state.match_duration:
             return True
         
-        # Check max steps
-        if self._current_step >= self._max_episode_steps:
-            return True
+        # NOTE: max_steps is handled as truncated in step(), not here
 
         return False
 
