@@ -44,6 +44,39 @@ class CharacterState:
     # Cooldowns
     ability_cooldowns: dict[str, float] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        """Validate character state."""
+        # Health must be non-negative
+        if self.health < 0:
+            raise ValueError(f"Character '{self.id}' health cannot be negative: {self.health}")
+        # Health cannot exceed MAX_HEALTH
+        if self.health > MAX_HEALTH:
+            raise ValueError(
+                f"Character '{self.id}' health ({self.health}) cannot exceed MAX_HEALTH ({MAX_HEALTH})"
+            )
+        # Shield cannot be negative
+        if self.shield < 0:
+            raise ValueError(f"Character '{self.id}' shield cannot be negative: {self.shield}")
+        # Shield cannot exceed MAX_SHIELD
+        if self.shield > MAX_SHIELD:
+            raise ValueError(
+                f"Character '{self.id}' shield ({self.shield}) cannot exceed MAX_SHIELD ({MAX_SHIELD})"
+            )
+        # Energy cannot be negative
+        if self.energy < 0:
+            raise ValueError(f"Character '{self.id}' energy cannot be negative: {self.energy}")
+        # Energy cannot exceed MAX_ENERGY
+        if self.energy > MAX_ENERGY:
+            raise ValueError(
+                f"Character '{self.id}' energy ({self.energy}) cannot exceed MAX_ENERGY ({MAX_ENERGY})"
+            )
+        # Stats must be non-negative
+        if self.kills < 0 or self.deaths < 0 or self.assists < 0:
+            raise ValueError(
+                f"Character '{self.id}' stats cannot be negative: "
+                f"kills={self.kills}, deaths={self.deaths}, assists={self.assists}"
+            )
+
 
 @dataclass
 class BattleArenaState:
@@ -468,13 +501,14 @@ class BattleArena(gym.Env):
                 if distance <= attack_range:
                     # Deal damage
                     damage = base_damage * dt
-                    target.health -= damage
                     attacker.damage_dealt += damage
                     target.damage_taken += damage
+                    
+                    # Clamp health to valid range (0 to MAX_HEALTH)
+                    target.health = max(0.0, min(target.health - damage, MAX_HEALTH))
 
                     # Check for kill
                     if target.health <= 0:
-                        target.health = 0
                         target.is_alive = False
                         target.deaths += 1
                         attacker.kills += 1
@@ -511,11 +545,12 @@ class BattleArena(gym.Env):
             if distance > safe_radius:
                 # Zone damage scaled by dt
                 damage = zone_damage_rate * dt
-                char.health -= damage
                 char.damage_taken += damage
+                
+                # Clamp health to valid range (0 to MAX_HEALTH)
+                char.health = max(0.0, min(char.health - damage, MAX_HEALTH))
 
                 if char.health <= 0:
-                    char.health = 0
                     char.is_alive = False
                     char.deaths += 1
 

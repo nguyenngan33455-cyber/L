@@ -122,7 +122,23 @@ class PhysicsBody:
     mask: int = 0xFFFFFFFF  # collision mask
 
     def __post_init__(self) -> None:
-        """Post-initialization."""
+        """Validate physics body state."""
+        # Validate mass is positive for dynamic bodies
+        if self.body_type == BodyType.DYNAMIC and self.mass <= 0:
+            raise ValueError(
+                f"Dynamic body '{self.id}' must have positive mass, got {self.mass}"
+            )
+        # Validate radius is positive for circle shapes
+        if self.shape_type == ShapeType.CIRCLE and self.radius <= 0:
+            raise ValueError(
+                f"Circle body '{self.id}' must have positive radius, got {self.radius}"
+            )
+        # Validate dimensions are positive for rectangle shapes
+        if self.shape_type == ShapeType.RECTANGLE and (self.width <= 0 or self.height <= 0):
+            raise ValueError(
+                f"Rectangle body '{self.id}' must have positive dimensions, "
+                f"got width={self.width}, height={self.height}"
+            )
 
     @property
     def bounding_box(self) -> BoundingBox:
