@@ -16,11 +16,11 @@ import traceback
 
 class PanicLevel(Enum):
     """Panic level enumeration."""
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
-    CRITICAL = "critical"
-    PANIC = "panic"
+    INFO = 0
+    WARNING = 1
+    ERROR = 2
+    CRITICAL = 3
+    PANIC = 4
 
 
 @dataclass
