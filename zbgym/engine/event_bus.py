@@ -207,7 +207,10 @@ class EventBus:
         events = self._history
         if event_type is not None:
             type_str = event_type.value if isinstance(event_type, EventType) else event_type
-            events = [e for e in events if str(e.type) == type_str]
+            events = [e for e in events if (
+                (isinstance(e.type, EventType) and e.type.value == type_str) or
+                (isinstance(e.type, str) and e.type == type_str)
+            )]
 
         return events[-limit:]
 
