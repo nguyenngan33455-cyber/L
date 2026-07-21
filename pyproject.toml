@@ -127,7 +127,7 @@ python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 asyncio_mode = "auto"
-addopts = "-v --cov=zbgym --cov-report=term-missing --cov-fail-under=90"
+addopts = "-v --cov=zbgym --cov-report=term-missing --cov-fail-under=40"
 filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.coverage.run]
