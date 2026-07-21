@@ -263,13 +263,15 @@ class Memory:
             duration: Cooldown duration in seconds
         """
         with self._lock:
-            self._cooldowns[key] = duration
+            # Store absolute end time
+            self._cooldowns[key] = time() + duration
     
     def is_on_cooldown(self, key: str) -> bool:
         """Check if key is on cooldown."""
         with self._lock:
             if key not in self._cooldowns:
                 return False
+            # _cooldowns[key] is now absolute end time
             remaining = self._cooldowns[key] - time()
             if remaining <= 0:
                 del self._cooldowns[key]

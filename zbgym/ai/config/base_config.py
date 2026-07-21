@@ -101,7 +101,12 @@ class AIConfig:
             "planning_frequency", "vision_radius", "memory_size",
             "seed", "deterministic", "debug"
         }
-        extra = {k: v for k, v in data.items() if k not in known_fields}
+        # Handle both nested and flat extra
+        if "extra" in data:
+            extra = dict(data["extra"]) if data["extra"] else {}
+        else:
+            extra = {k: v for k, v in data.items() if k not in known_fields}
+        
         known = {k: v for k, v in data.items() if k in known_fields}
         known["extra"] = extra
         return cls(**known)
