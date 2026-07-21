@@ -9,9 +9,9 @@ import gymnasium as gym
 import numpy as np
 from numpy.typing import NDArray
 
-from zbgym.config import ZBGymConfig
+from zbgym.config import EnvironmentConfig, ZBGymConfig
 from zbgym.env.battle_arena import BattleArena, BattleArenaState
-from zbgym.envs.base.environment import BaseEnvironment, EnvironmentConfig
+from zbgym.envs.base.environment import BaseEnvironment
 
 
 @dataclass
@@ -51,10 +51,17 @@ class GameState:
 
 
 @dataclass
-class ZoobaConfig(EnvironmentConfig):
+class ZoobaConfig:
     """Configuration for Zooba environment."""
 
+    # Core settings
     name: str = "Zooba-v1"
+    num_agents: int = 2
+    max_episode_steps: int = 10000
+
+    # Arena settings
+    arena_width: int = 2000
+    arena_height: int = 1500
 
     # Game-specific settings
     game_mode: str = "battle_royale"
@@ -68,6 +75,12 @@ class ZoobaConfig(EnvironmentConfig):
     # Map settings
     map_name: str = "default"
     spawn_mode: str = "random"  # "random", "balanced", "fixed"
+
+    # Observation settings
+    obs_include_health: bool = True
+    obs_include_position: bool = True
+    obs_include_velocity: bool = True
+    obs_include_vision: bool = True
 
     # Zooba-specific rewards
     kill_reward: float = 10.0
@@ -100,7 +113,7 @@ class ZoobaAdapter(BaseEnvironment):
             config: Zooba configuration
             render_mode: Rendering mode
         """
-        super().__init__(config=config, render_mode=render_mode)
+        super().__init__(render_mode=render_mode)
 
         self.config = config or ZoobaConfig()
 

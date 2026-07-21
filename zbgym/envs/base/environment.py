@@ -144,7 +144,12 @@ class BaseEnvironment(ABC, gym.Env):
     @property
     def spec(self) -> gym.envs.env_spec.EnvSpec | None:
         """Get environment spec."""
-        return None
+        return getattr(self, "_spec", None)
+
+    @spec.setter
+    def spec(self, value: gym.envs.env_spec.EnvSpec | None) -> None:
+        """Set environment spec."""
+        self._spec = value
 
     @property
     def unwrapped(self) -> BaseEnvironment:
