@@ -13,10 +13,13 @@ This module provides comprehensive parsing of dump.cs to extract:
 from __future__ import annotations
 
 import json
+import logging
 import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 # ============================================================================
 # Data Classes
@@ -500,7 +503,7 @@ class DumpParser:
         """Load dump file into memory."""
         with open(self.dump_path, encoding="utf-8", errors="ignore") as f:
             self._content = f.read()
-        print(f"[DumpParser] Loaded {len(self._content):,} characters")
+        logger.info(f"[DumpParser] Loaded {len(self._content):,} characters")
 
     @property
     def content(self) -> str:
@@ -518,19 +521,19 @@ class DumpParser:
         extractor = EnumExtractor(self.content)
 
         self._character_enum = extractor.extract_character_enum()
-        print(f"[DumpParser] Found {len(self._character_enum)} character enum values")
+        logger.info(f"[DumpParser] Found {len(self._character_enum)} character enum values")
 
         self._npc_enum = extractor.extract_npc_enum()
-        print(f"[DumpParser] Found {len(self._npc_enum)} NPC enum values")
+        logger.info(f"[DumpParser] Found {len(self._npc_enum)} NPC enum values")
 
         self._skill_category_enum = extractor.extract_skill_category_enum()
-        print(f"[DumpParser] Found {len(self._skill_category_enum)} skill category values")
+        logger.info(f"[DumpParser] Found {len(self._skill_category_enum)} skill category values")
 
         self._skill_rarity_enum = extractor.extract_skill_rarity_enum()
-        print(f"[DumpParser] Found {len(self._skill_rarity_enum)} skill rarity values")
+        logger.info(f"[DumpParser] Found {len(self._skill_rarity_enum)} skill rarity values")
 
         self._projectile_enum = extractor.extract_projectile_enum()
-        print(f"[DumpParser] Found {len(self._projectile_enum)} projectile types")
+        logger.info(f"[DumpParser] Found {len(self._projectile_enum)} projectile types")
 
     # ========================================================================
     # Characters
@@ -570,7 +573,7 @@ class DumpParser:
 
             self._characters[char_id] = char
 
-        print(f"[DumpParser] Parsed {len(self._characters)} characters")
+        logger.info(f"[DumpParser] Parsed {len(self._characters)} characters")
         return self._characters
 
     def _extract_character_object_fields(self) -> dict[str, Any]:
@@ -636,7 +639,7 @@ class DumpParser:
         # Parse skill behaviour classes
         self._parse_skill_behaviours()
 
-        print(f"[DumpParser] Parsed {len(self._skills)} skills")
+        logger.info(f"[DumpParser] Parsed {len(self._skills)} skills")
         return self._skills
 
     def _map_skill_category_to_type(self, cat_name: str) -> str:
@@ -750,7 +753,7 @@ class DumpParser:
 
             self._npcs[npc_id] = npc
 
-        print(f"[DumpParser] Parsed {len(self._npcs)} NPCs")
+        logger.info(f"[DumpParser] Parsed {len(self._npcs)} NPCs")
         return self._npcs
 
     # ========================================================================
@@ -848,7 +851,7 @@ class DumpParser:
 
             self._projectiles[projectile_id] = projectile
 
-        print(f"[DumpParser] Parsed {len(self._projectiles)} projectiles")
+        logger.info(f"[DumpParser] Parsed {len(self._projectiles)} projectiles")
         return self._projectiles
 
     # ========================================================================
@@ -936,7 +939,7 @@ class DumpParser:
                 )
                 self._weapons[weapon_id] = weapon
 
-        print(f"[DumpParser] Parsed {len(self._weapons)} weapons")
+        logger.info(f"[DumpParser] Parsed {len(self._weapons)} weapons")
         return self._weapons
 
     # ========================================================================
@@ -972,7 +975,7 @@ class DumpParser:
 
             self._buffs[buff_id] = buff
 
-        print(f"[DumpParser] Parsed {len(self._buffs)} buffs")
+        logger.info(f"[DumpParser] Parsed {len(self._buffs)} buffs")
         return self._buffs
 
     # ========================================================================
@@ -1042,7 +1045,7 @@ class DumpParser:
             with open(output_dir / "constants.json", "w") as f:
                 json.dump(self._constants.to_dict(), f, indent=2)
 
-        print(f"[DumpParser] Exported data to {output_dir}")
+        logger.info(f"[DumpParser] Exported data to {output_dir}")
 
     # ========================================================================
     # Getters
