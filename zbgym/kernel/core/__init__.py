@@ -1,68 +1,66 @@
 """
-ZBGym Kernel Module.
+ZBGym Kernel Core Implementation.
 
-This module provides the Kernel architecture and implementation for ZBGym.
-The kernel is the central coordinator responsible for:
-- Framework lifecycle management
-- Module communication
-- Scheduling and tick coordination
-- Dependency management
-- Runtime orchestration
+This module provides the production-grade Kernel implementation.
 """
 
-from zbgym.kernel.core import (
-    Kernel,
-    KernelState,
-    KernelConfig,
-    RuntimeContext,
-    Clock,
-    ModuleManager,
-    ModuleState,
+from zbgym.kernel.core.kernel import Kernel, KernelState, KernelConfig
+from zbgym.kernel.core.runtime_context import RuntimeContext, Clock
+from zbgym.kernel.core.module_manager import ModuleManager, ModuleNotFoundError
+from zbgym.kernel.core.lifecycle_manager import (
     LifecycleManager,
+    ModuleState,
     LifecycleCallbacks,
+    LifecycleTransitionError
+)
+from zbgym.kernel.core.dependency_resolver import (
     DependencyResolver,
     Dependency,
     DependencyType,
     ModuleSpec,
+    DependencyError,
+    CyclicDependencyError,
+    MissingDependencyError
+)
+from zbgym.kernel.core.tick_coordinator import (
     TickCoordinator,
     TickStage,
     TickResult,
-    StageResult,
+    StageResult
+)
+from zbgym.kernel.core.event_dispatcher import (
     EventDispatcher,
     Event,
-    Subscription,
+    Subscription
+)
+from zbgym.kernel.core.panic_manager import (
     PanicManager,
     PanicLevel,
-    PanicEvent,
-    StateStore,
-    StateSnapshot,
+    PanicEvent
+)
+from zbgym.kernel.core.state_store import StateStore, StateSnapshot
+from zbgym.kernel.core.health_monitor import (
     HealthMonitor,
     HealthStatus,
     HealthReport,
-    ModuleHealth,
-    MetricsCollector,
-    Metric,
-    # Exceptions
-    ModuleNotFoundError,
-    LifecycleTransitionError,
-    DependencyError,
-    CyclicDependencyError,
-    MissingDependencyError,
+    ModuleHealth
 )
+from zbgym.kernel.core.metrics_collector import MetricsCollector, Metric
 
 __all__ = [
-    # Core
+    # Kernel
     "Kernel",
     "KernelState",
     "KernelConfig",
+    # Runtime
     "RuntimeContext",
     "Clock",
     # Module
     "ModuleManager",
-    "ModuleState",
     "ModuleNotFoundError",
     # Lifecycle
     "LifecycleManager",
+    "ModuleState",
     "LifecycleCallbacks",
     "LifecycleTransitionError",
     # Dependency
@@ -98,6 +96,3 @@ __all__ = [
     "MetricsCollector",
     "Metric",
 ]
-
-__version__ = "1.0.0"
-__status__ = "implementation"
