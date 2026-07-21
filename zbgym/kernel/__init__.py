@@ -50,6 +50,25 @@ from zbgym.kernel.core import (
     MissingDependencyError,
 )
 
+# Import integration layer
+from zbgym.kernel.integration import (
+    KernelIntegration,
+    ModuleRegistry,
+    get_registry,
+    register_module,
+    get_module,
+    has_module,
+    list_modules,
+)
+
+# Import factory
+from zbgym.kernel.factory import (
+    create_kernel,
+    create_integrated_environment,
+    KernelContext,
+    run_kernel_env,
+)
+
 __all__ = [
     # Core
     "Kernel",
@@ -97,6 +116,19 @@ __all__ = [
     # Metrics
     "MetricsCollector",
     "Metric",
+    # Integration
+    "KernelIntegration",
+    "ModuleRegistry",
+    "get_registry",
+    "register_module",
+    "get_module",
+    "has_module",
+    "list_modules",
+    # Factory
+    "create_kernel",
+    "create_integrated_environment",
+    "KernelContext",
+    "run_kernel_env",
 ]
 
 __version__ = "1.0.0"

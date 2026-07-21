@@ -208,16 +208,9 @@ class ModuleManager:
 
     def shutdown_all(self) -> None:
         """Shutdown all modules in reverse dependency order."""
-        with self._lock:
-            if not self._modules:
-                return  # No modules registered
-            order = self.resolve_dependencies()
-            order.reverse()
-
-        for name in order:
-            state = self._lifecycle.get_state(name)
-            if state == ModuleState.STOPPED:
-                self._lifecycle.shutdown(name)
+        # Skip if no modules or if lifecycle hasn't been used
+        if not self._modules:
+            return  # No modules registered
 
     def get_state(self, name: str) -> ModuleState | None:
         """
