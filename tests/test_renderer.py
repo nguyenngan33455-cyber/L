@@ -1,12 +1,11 @@
 """Tests for rendering system."""
 
-import pytest
 import numpy as np
 
 from zbgym.rendering.debug_renderer import (
+    DebugColor,
     DebugRenderer,
     DebugShape,
-    DebugColor,
 )
 
 
@@ -22,13 +21,13 @@ class TestDebugRenderer:
     def test_render_method_exists(self):
         """Test that render() method exists."""
         renderer = DebugRenderer()
-        assert hasattr(renderer, 'render')
+        assert hasattr(renderer, "render")
         assert callable(renderer.render)
 
     def test_render_rgb_array(self):
         """Test render returns RGB array in rgb_array mode."""
         renderer = DebugRenderer(width=100, height=100)
-        
+
         # Add a shape using add_shape
         shape = DebugShape(
             shape_type="circle",
@@ -38,10 +37,10 @@ class TestDebugRenderer:
             layer=0,
         )
         renderer.add_shape(shape)
-        
+
         # Render
         result = renderer.render(mode="rgb_array")
-        
+
         assert result is not None
         assert isinstance(result, np.ndarray)
         assert result.shape == (100, 100, 3)
@@ -58,9 +57,9 @@ class TestDebugRenderer:
             layer=0,
         )
         renderer.add_shape(shape)
-        
+
         result = renderer.render(mode="human")
-        
+
         assert result is None
 
     def test_to_image(self):
@@ -74,9 +73,9 @@ class TestDebugRenderer:
             layer=0,
         )
         renderer.add_shape(shape)
-        
+
         image = renderer.to_image()
-        
+
         assert image.shape == (100, 100, 3)
         assert image.dtype == np.uint8
 
@@ -84,7 +83,7 @@ class TestDebugRenderer:
         """Test close method."""
         renderer = DebugRenderer()
         renderer.close()
-        
+
         # After close, buffer should be cleared
         assert len(renderer.shapes) == 0
 
@@ -101,7 +100,7 @@ class TestDebugShape:
             color=DebugColor.RED,
             layer=0,
         )
-        
+
         assert shape.shape_type == "circle"
         assert shape.size == 10
 
@@ -115,7 +114,7 @@ class TestDebugShape:
             color=DebugColor.GREEN,
             layer=0,
         )
-        
+
         assert shape.shape_type == "line"
         assert shape.end_position is not None
 

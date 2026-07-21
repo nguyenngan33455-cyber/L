@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.typing import NDArray
 
+from zbgym.constants import MAX_HEALTH
 from zbgym.observation.base import (
     Observation,
     ObservationConfig,
     observation_registry,
 )
-from zbgym.constants import MAX_HEALTH
 
 if TYPE_CHECKING:
     from zbgym.env.battle_arena import BattleArenaState
@@ -80,7 +80,7 @@ class EnemyObservation(Observation):
             per_enemy += 1
         return base + self.config.max_enemies * per_enemy
 
-    def compute(self, state: "BattleArenaState") -> NDArray[np.float32]:
+    def compute(self, state: BattleArenaState) -> NDArray[np.float32]:
         """Compute enemy observation."""
         # Get self character
         self_char = None

@@ -23,20 +23,17 @@ from __future__ import annotations
 
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from zbgym.dashboard.client import DashboardClient
-from zbgym.dashboard.config import DashboardConfig
-from zbgym.dashboard.connection import ConnectionState
 from zbgym.dashboard.exceptions import (
     DashboardAuthError,
     DashboardConnectionError,
     DashboardError,
 )
 from zbgym.dashboard.models import EventType, LogLevel
-
 
 logger = logging.getLogger(__name__)
 
@@ -652,7 +649,7 @@ class DashboardManager:
         """Publish DEBUG log."""
         self.publish_log(LogLevel.DEBUG, message)
 
-    def __enter__(self) -> "DashboardManager":
+    def __enter__(self) -> DashboardManager:
         """Context manager entry."""
         return self
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, TypeVar, Generic
+from typing import Generic, TypeVar
 
 T = TypeVar("T")
 
@@ -29,12 +29,10 @@ class Plugin(ABC):
     @abstractmethod
     def initialize(self) -> None:
         """Initialize the plugin."""
-        pass
 
     @abstractmethod
     def shutdown(self) -> None:
         """Cleanup when plugin is unloaded."""
-        pass
 
 
 class PluginRegistry(Generic[T]):

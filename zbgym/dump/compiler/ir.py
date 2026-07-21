@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -272,7 +272,7 @@ class Compiler:
     def load(self) -> None:
         """Load dump.cs into memory."""
         print(f"[Compiler] Loading {self.dump_path}...")
-        with open(self.dump_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(self.dump_path, encoding="utf-8", errors="ignore") as f:
             self.content = f.read()
         print(f"[Compiler] Loaded {len(self.content):,} characters")
 
@@ -537,12 +537,32 @@ class Compiler:
         effects = {
             "stun": {"name": "Stun", "duration": 1.0, "type": "control"},
             "slow": {"name": "Slow", "duration": 2.0, "speed_modifier": 0.5, "type": "debuff"},
-            "speed_boost": {"name": "Speed Boost", "duration": 3.0, "speed_modifier": 1.5, "type": "buff"},
-            "damage_boost": {"name": "Damage Boost", "duration": 5.0, "damage_modifier": 1.25, "type": "buff"},
+            "speed_boost": {
+                "name": "Speed Boost",
+                "duration": 3.0,
+                "speed_modifier": 1.5,
+                "type": "buff",
+            },
+            "damage_boost": {
+                "name": "Damage Boost",
+                "duration": 5.0,
+                "damage_modifier": 1.25,
+                "type": "buff",
+            },
             "invulnerable": {"name": "Invulnerable", "duration": 2.0, "type": "buff"},
             "invisible": {"name": "Invisible", "duration": 3.0, "type": "buff"},
-            "burning": {"name": "Burning", "duration": 3.0, "damage_per_second": 10.0, "type": "dot"},
-            "poisoned": {"name": "Poisoned", "duration": 5.0, "damage_per_second": 5.0, "type": "dot"},
+            "burning": {
+                "name": "Burning",
+                "duration": 3.0,
+                "damage_per_second": 10.0,
+                "type": "dot",
+            },
+            "poisoned": {
+                "name": "Poisoned",
+                "duration": 5.0,
+                "damage_per_second": 5.0,
+                "type": "dot",
+            },
             "frozen": {"name": "Frozen", "duration": 1.5, "type": "control"},
             "blind": {"name": "Blind", "duration": 2.0, "type": "debuff"},
         }
@@ -672,17 +692,17 @@ class Compiler:
         name_lower = name.lower()
         if "pistol" in name_lower:
             return "pistol"
-        elif "rifle" in name_lower:
+        if "rifle" in name_lower:
             return "rifle"
-        elif "shotgun" in name_lower:
+        if "shotgun" in name_lower:
             return "shotgun"
-        elif "sniper" in name_lower:
+        if "sniper" in name_lower:
             return "sniper"
-        elif "smg" in name_lower:
+        if "smg" in name_lower:
             return "smg"
-        elif "rocket" in name_lower or "launcher" in name_lower:
+        if "rocket" in name_lower or "launcher" in name_lower:
             return "explosive"
-        elif "melee" in name_lower or "sword" in name_lower:
+        if "melee" in name_lower or "sword" in name_lower:
             return "melee"
         return "rifle"
 
@@ -692,15 +712,15 @@ class Compiler:
         name_lower = name.lower()
         if "heal" in name_lower or "health" in name_lower:
             return "heal"
-        elif "shield" in name_lower or "protect" in name_lower:
+        if "shield" in name_lower or "protect" in name_lower:
             return "shield"
-        elif "dash" in name_lower or "blink" in name_lower:
+        if "dash" in name_lower or "blink" in name_lower:
             return "dash"
-        elif "ultimate" in name_lower or "super" in name_lower:
+        if "ultimate" in name_lower or "super" in name_lower:
             return "ultimate"
-        elif "aoe" in name_lower or "area" in name_lower:
+        if "aoe" in name_lower or "area" in name_lower:
             return "aoe"
-        elif "passive" in name_lower:
+        if "passive" in name_lower:
             return "passive"
         return "active"
 
@@ -710,9 +730,9 @@ class Compiler:
         name_lower = name.lower()
         if "ultimate" in name_lower:
             return "ultimate"
-        elif "passive" in name_lower:
+        if "passive" in name_lower:
             return "passive"
-        elif "support" in name_lower:
+        if "support" in name_lower:
             return "support"
         return "normal"
 
@@ -722,12 +742,12 @@ class Compiler:
         name_lower = name.lower()
         if "bullet" in name_lower:
             return "bullet"
-        elif "rocket" in name_lower or "missile" in name_lower:
+        if "rocket" in name_lower or "missile" in name_lower:
             return "rocket"
-        elif "arrow" in name_lower:
+        if "arrow" in name_lower:
             return "arrow"
-        elif "energy" in name_lower:
+        if "energy" in name_lower:
             return "energy"
-        elif "grenade" in name_lower or "bomb" in name_lower:
+        if "grenade" in name_lower or "bomb" in name_lower:
             return "grenade"
         return "bullet"

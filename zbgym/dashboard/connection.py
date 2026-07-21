@@ -11,13 +11,14 @@ import json
 import logging
 import threading
 import time
+from collections.abc import Callable
 from queue import Empty, Queue
-from typing import Any, Callable
-from urllib.parse import urlparse
+from typing import Any
 
 try:
     import websockets
     from websockets.client import WebSocketClientProtocol
+
     WEBSOCKETS_AVAILABLE = True
 except ImportError:
     WEBSOCKETS_AVAILABLE = False
@@ -27,14 +28,12 @@ import requests
 
 from zbgym.dashboard.config import DashboardConfig
 from zbgym.dashboard.exceptions import (
-    DashboardAuthError,
     DashboardConnectionError,
     DashboardReconnectError,
     DashboardTimeoutError,
 )
 from zbgym.dashboard.models import PacketType
 from zbgym.dashboard.packet import Packet
-
 
 logger = logging.getLogger(__name__)
 
@@ -315,10 +314,7 @@ class DashboardConnection:
                 self.config.max_reconnect_delay,
             )
 
-            logger.info(
-                f"Reconnection attempt {self._reconnect_attempts}, "
-                f"waiting {delay:.1f}s"
-            )
+            logger.info(f"Reconnection attempt {self._reconnect_attempts}, waiting {delay:.1f}s")
 
             time.sleep(delay)
 
@@ -427,10 +423,9 @@ class DashboardConnection:
                     except Exception as e:
                         logger.error(f"Send error: {e}")
                         self._handle_send_error(e)
-                else:
-                    # Re-queue if not connected
-                    if not self._send_queue.full():
-                        self._send_queue.put(packet)
+                # Re-queue if not connected
+                elif not self._send_queue.full():
+                    self._send_queue.put(packet)
 
             except Empty:
                 continue
@@ -553,7 +548,7 @@ class DashboardConnection:
         """Get number of reconnection attempts."""
         return self._reconnect_attempts
 
-    def __enter__(self) -> "DashboardConnection":
+    def __enter__(self) -> DashboardConnection:
         """Context manager entry."""
         self.connect()
         return self

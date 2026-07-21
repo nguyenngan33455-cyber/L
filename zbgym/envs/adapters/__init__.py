@@ -1,5 +1,5 @@
 """Game adapters for ZBGym."""
 
-from zbgym.envs.adapters.zooba import ZoobaAdapter, ZoobaConfig, GameState
+from zbgym.envs.adapters.zooba import GameState, ZoobaAdapter, ZoobaConfig
 
-__all__ = ["ZoobaAdapter", "ZoobaConfig", "GameState"]
+__all__ = ["GameState", "ZoobaAdapter", "ZoobaConfig"]

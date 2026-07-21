@@ -47,17 +47,17 @@ from zbgym.dashboard.exceptions import (
 )
 from zbgym.dashboard.metrics import Metrics, MetricsAggregator
 from zbgym.dashboard.models import (
+    ZBGYM_VERSION,
     CheckpointData,
     EventData,
     EventType,
     LogData,
     LogLevel,
-    MetricType,
     MetricsData,
+    MetricType,
     PacketType,
     ReplayData,
     TrainingSession,
-    ZBGYM_VERSION,
 )
 
 __all__ = [
@@ -103,16 +103,16 @@ __version__ = ZBGYM_VERSION
 
 
 # Dashboard Manager
+from zbgym.dashboard.callback import (
+    DashboardCallback,
+    DashboardCheckpointCallback,
+    DashboardMetricsCallback,
+)
 from zbgym.dashboard.manager import (
     DashboardManager,
     DashboardManagerConfig,
-    get_dashboard_manager,
     configure_dashboard,
-)
-from zbgym.dashboard.callback import (
-    DashboardCallback,
-    DashboardMetricsCallback,
-    DashboardCheckpointCallback,
+    get_dashboard_manager,
 )
 
 __all__ += [

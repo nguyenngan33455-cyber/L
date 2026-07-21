@@ -1,10 +1,11 @@
 """Tests for ZBGym engine modules."""
 
 import pytest
-from zbgym.engine.event_bus import EventBus, Event
+
+from zbgym.engine.event_bus import Event, EventBus
+from zbgym.engine.map import MapData, MapManager
+from zbgym.engine.spawn import SpawnConfig, SpawnSystem
 from zbgym.engine.tick_system import TickSystem
-from zbgym.engine.map import MapManager, MapData
-from zbgym.engine.spawn import SpawnSystem, SpawnConfig
 from zbgym.physics.vector import Vector2D
 
 

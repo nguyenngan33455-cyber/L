@@ -311,7 +311,9 @@ class ReplayRecorder:
         """
         step = ReplayStep(
             tick=self._current_tick,
-            observation=observation.tolist() if isinstance(observation, np.ndarray) else observation,
+            observation=observation.tolist()
+            if isinstance(observation, np.ndarray)
+            else observation,
             actions=actions,
             rewards=rewards,
             events=events,

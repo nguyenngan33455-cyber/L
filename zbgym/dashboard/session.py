@@ -11,8 +11,7 @@ import time
 from typing import Any
 
 from zbgym.dashboard.exceptions import DashboardSessionError
-from zbgym.dashboard.models import TrainingSession, ZBGYM_VERSION
-
+from zbgym.dashboard.models import ZBGYM_VERSION, TrainingSession
 
 logger = logging.getLogger(__name__)
 
@@ -94,8 +93,7 @@ class SessionManager:
         """
         if self._current_session is not None:
             logger.warning(
-                f"Session {self._current_session.session_id} is still active. "
-                "Finishing it first."
+                f"Session {self._current_session.session_id} is still active. Finishing it first."
             )
             self.finish()
 
@@ -124,10 +122,7 @@ class SessionManager:
             )
         )
 
-        logger.info(
-            f"Created session {session.session_id}: "
-            f"{project_name}/{trainer}/{env_id}"
-        )
+        logger.info(f"Created session {session.session_id}: {project_name}/{trainer}/{env_id}")
 
         return session
 
@@ -229,8 +224,7 @@ class SessionManager:
         )
 
         logger.info(
-            f"Finished session {session.session_id}: "
-            f"status={status}, duration={duration:.1f}s"
+            f"Finished session {session.session_id}: status={status}, duration={duration:.1f}s"
         )
 
         self._current_session = None
@@ -263,12 +257,8 @@ class SessionManager:
         }
 
         if session.total_timesteps > 0:
-            progress["progress_percent"] = (
-                session.current_timestep / session.total_timesteps * 100
-            )
-            progress["remaining_timesteps"] = (
-                session.total_timesteps - session.current_timestep
-            )
+            progress["progress_percent"] = session.current_timestep / session.total_timesteps * 100
+            progress["remaining_timesteps"] = session.total_timesteps - session.current_timestep
 
             if elapsed > 0:
                 tps = session.current_timestep / elapsed
@@ -316,14 +306,12 @@ class SessionManager:
             )
 
         # Update timestep
-        if timestep > self._current_session.current_timestep:
-            self._current_session.current_timestep = timestep
+        self._current_session.current_timestep = max(
+            self._current_session.current_timestep, timestep
+        )
 
         # Event will be published separately via dashboard.publish_event()
-        logger.debug(
-            f"Checkpoint saved at timestep {timestep}, "
-            f"is_best={is_best}"
-        )
+        logger.debug(f"Checkpoint saved at timestep {timestep}, is_best={is_best}")
 
     def replay_saved(
         self,
@@ -345,10 +333,7 @@ class SessionManager:
                 operation="replay_saved",
             )
 
-        logger.debug(
-            f"Replay saved for episode {episode}, "
-            f"duration={duration:.1f}s"
-        )
+        logger.debug(f"Replay saved for episode {episode}, duration={duration:.1f}s")
 
     def __repr__(self) -> str:
         """String representation."""

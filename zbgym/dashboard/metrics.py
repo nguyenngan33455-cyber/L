@@ -6,9 +6,10 @@ to the Dashboard during training.
 
 from __future__ import annotations
 
-import psutil
 import time
 from typing import TYPE_CHECKING
+
+import psutil
 
 if TYPE_CHECKING:
     from zbgym.dashboard.models import MetricsData
@@ -301,9 +302,7 @@ class Metrics:
 
         # Auto-collect system metrics
         metrics.add(MetricType.CPU_PERCENT, psutil.cpu_percent())
-        metrics.add(
-            MetricType.MEMORY_MB, psutil.Process().memory_info().rss / (1024 * 1024)
-        )
+        metrics.add(MetricType.MEMORY_MB, psutil.Process().memory_info().rss / (1024 * 1024))
 
         # Add elapsed time
         metrics.add(MetricType.ELAPSED_TIME, time.time())

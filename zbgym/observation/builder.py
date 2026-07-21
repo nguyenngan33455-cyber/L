@@ -6,13 +6,11 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-from numpy.typing import NDArray
 
 from zbgym.observation.base import (
     Observation,
-    ObservationConfig,
-    ObservationResult,
     ObservationRegistry,
+    ObservationResult,
 )
 
 if TYPE_CHECKING:
@@ -62,11 +60,11 @@ class ObservationBuilder:
 
     def _register_default_observations(self) -> None:
         """Register default observations."""
+        from zbgym.observation.enemy import EnemyObservation
         from zbgym.observation.health import HealthObservation
         from zbgym.observation.position import PositionObservation
-        from zbgym.observation.enemy import EnemyObservation
         from zbgym.observation.zone import ZoneObservation
-        
+
         self.registry.register("health", HealthObservation)
         self.registry.register("position", PositionObservation)
         self.registry.register("enemies", EnemyObservation)
@@ -104,7 +102,7 @@ class ObservationBuilder:
             shapes[obs_name] = obs.get_dimension()
         return shapes
 
-    def build(self, state: "BattleArenaState") -> ObservationResult:
+    def build(self, state: BattleArenaState) -> ObservationResult:
         """
         Build complete observation from game state.
 
@@ -132,7 +130,7 @@ class ObservationBuilder:
         if len(combined) < self.dimension:
             combined = np.pad(combined, (0, self.dimension - len(combined)))
         elif len(combined) > self.dimension:
-            combined = combined[:self.dimension]
+            combined = combined[: self.dimension]
 
         return ObservationResult(
             data=combined,
@@ -141,7 +139,7 @@ class ObservationBuilder:
             config=self._get_config_dict(),
         )
 
-    def build_dict(self, state: "BattleArenaState") -> dict[str, float]:
+    def build_dict(self, state: BattleArenaState) -> dict[str, float]:
         """
         Build observation as dictionary.
 
@@ -234,6 +232,5 @@ def get_default_registry() -> ObservationRegistry:
     global _default_registry
     if _default_registry is None:
         # Import and register default observations
-        from zbgym.observation import health, position, enemy, zone
         _default_registry = ObservationRegistry()
     return _default_registry

@@ -1,7 +1,7 @@
 """Tests for vector physics module."""
 
 import math
-import pytest
+
 from zbgym.physics.vector import Vector2D
 
 
@@ -179,7 +179,7 @@ class TestVectorDeterminism:
         """Test that same operations produce same results."""
         v1 = Vector2D(3.0, 4.0)
         v2 = Vector2D(1.0, 2.0)
-        
+
         # Multiple times to ensure determinism
         for _ in range(10):
             result = (v1 + v2).length
@@ -188,12 +188,12 @@ class TestVectorDeterminism:
     def test_rotation_deterministic(self):
         """Test rotation is deterministic."""
         v = Vector2D(1.0, 0.0)
-        
+
         results = []
         for _ in range(10):
             rotated = v.rotate(math.pi / 4)
             results.append((rotated.x, rotated.y))
-        
+
         # All results should be identical
         assert all(abs(r[0] - results[0][0]) < 0.0001 for r in results)
         assert all(abs(r[1] - results[0][1]) < 0.0001 for r in results)
@@ -201,11 +201,11 @@ class TestVectorDeterminism:
     def test_normalize_deterministic(self):
         """Test normalization is deterministic."""
         v = Vector2D(10.0, 20.0)
-        
+
         results = []
         for _ in range(10):
             normalized = v.normalized
             results.append((normalized.x, normalized.y))
-        
+
         # All results should be identical
         assert len(set(results)) == 1

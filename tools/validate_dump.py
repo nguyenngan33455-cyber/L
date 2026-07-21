@@ -12,13 +12,10 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from collections import Counter
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Validate dump.cs for parsing"
-    )
+    parser = argparse.ArgumentParser(description="Validate dump.cs for parsing")
     parser.add_argument(
         "dump_path",
         nargs="?",
@@ -41,7 +38,7 @@ def main():
 
     print(f"Validating {dump_path}...")
 
-    with open(dump_path, "r", encoding="utf-8", errors="ignore") as f:
+    with open(dump_path, encoding="utf-8", errors="ignore") as f:
         content = f.read()
 
     # Statistics
@@ -62,14 +59,20 @@ def main():
     key_enums = []
     for match in re.finditer(r"public enum (\w+)", content):
         enum_name = match.group(1)
-        if any(keyword in enum_name.lower() for keyword in ["character", "weapon", "skill", "projectile", "item", "effect"]):
+        if any(
+            keyword in enum_name.lower()
+            for keyword in ["character", "weapon", "skill", "projectile", "item", "effect"]
+        ):
             key_enums.append(enum_name)
 
     # Find key classes
     key_classes = []
     for match in re.finditer(r"public (?:sealed |abstract |static )?class (\w+)", content):
         class_name = match.group(1)
-        if any(keyword in class_name.lower() for keyword in ["config", "data", "stats", "character", "weapon", "skill", "projectile"]):
+        if any(
+            keyword in class_name.lower()
+            for keyword in ["config", "data", "stats", "character", "weapon", "skill", "projectile"]
+        ):
             key_classes.append(class_name)
 
     # Print report

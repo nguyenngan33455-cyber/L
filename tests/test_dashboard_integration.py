@@ -1,23 +1,18 @@
 """Integration tests for Dashboard module."""
 
-import time
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
+from zbgym.dashboard.callback import (
+    DashboardCallback,
+)
+from zbgym.dashboard.client import DashboardClient
 from zbgym.dashboard.manager import (
     DashboardManager,
     DashboardManagerConfig,
     configure_dashboard,
     get_dashboard_manager,
 )
-from zbgym.dashboard.callback import (
-    DashboardCallback,
-    DashboardMetricsCallback,
-)
-from zbgym.dashboard.client import DashboardClient
-from zbgym.dashboard.models import EventType, LogLevel
+from zbgym.dashboard.models import LogLevel
 
 
 class TestDashboardManager:
@@ -65,18 +60,14 @@ class TestDashboardManager:
     def test_start_session_enabled(self, MockDashboardClient):
         """Test starting session when enabled."""
         from zbgym.dashboard.models import TrainingSession
-        
+
         # Create mock client
         mock_client = MagicMock()
-        mock_session = TrainingSession.create(
-            project_name="Test",
-            trainer="PPO",
-            env_id="Test-v1"
-        )
+        mock_session = TrainingSession.create(project_name="Test", trainer="PPO", env_id="Test-v1")
         mock_client.connect.return_value = None
         mock_client.is_connected = True
         mock_client.start_session.return_value = mock_session
-        
+
         MockDashboardClient.return_value = mock_client
 
         manager = DashboardManager(DashboardManagerConfig(enabled=True))
@@ -191,8 +182,8 @@ class TestTrainerDashboardIntegration:
 
     def test_ppo_trainer_no_dashboard(self):
         """Test PPO trainer without dashboard."""
-        from zbgym.trainer.ppo import PPOTrainer
         from zbgym.trainer.base import TrainerConfig
+        from zbgym.trainer.ppo import PPOTrainer
 
         config = TrainerConfig(total_timesteps=100)
         trainer = PPOTrainer(config=config)
@@ -201,8 +192,8 @@ class TestTrainerDashboardIntegration:
 
     def test_ppo_trainer_with_dashboard_enabled(self):
         """Test PPO trainer with dashboard enabled."""
-        from zbgym.trainer.ppo import PPOTrainer
         from zbgym.trainer.base import TrainerConfig
+        from zbgym.trainer.ppo import PPOTrainer
 
         config = TrainerConfig(total_timesteps=100)
         trainer = PPOTrainer(
@@ -217,8 +208,8 @@ class TestTrainerDashboardIntegration:
 
     def test_ppo_trainer_with_dashboard_disabled(self):
         """Test PPO trainer with dashboard explicitly disabled."""
-        from zbgym.trainer.ppo import PPOTrainer
         from zbgym.trainer.base import TrainerConfig
+        from zbgym.trainer.ppo import PPOTrainer
 
         config = TrainerConfig(total_timesteps=100)
         trainer = PPOTrainer(config=config, dashboard=False)
@@ -227,8 +218,8 @@ class TestTrainerDashboardIntegration:
 
     def test_ppo_trainer_with_manager_instance(self):
         """Test PPO trainer with DashboardManager instance."""
-        from zbgym.trainer.ppo import PPOTrainer
         from zbgym.trainer.base import TrainerConfig
+        from zbgym.trainer.ppo import PPOTrainer
 
         manager = DashboardManager(DashboardManagerConfig(enabled=True))
         config = TrainerConfig(total_timesteps=100)
@@ -239,8 +230,8 @@ class TestTrainerDashboardIntegration:
 
     def test_ppo_trainer_with_manager_config(self):
         """Test PPO trainer with DashboardManagerConfig."""
-        from zbgym.trainer.ppo import PPOTrainer
         from zbgym.trainer.base import TrainerConfig
+        from zbgym.trainer.ppo import PPOTrainer
 
         config = TrainerConfig(total_timesteps=100)
         dash_config = DashboardManagerConfig(enabled=True, url="https://test.com")

@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 
 from zbgym.dashboard.callback import DashboardCallback
 from zbgym.dashboard.manager import DashboardManager, DashboardManagerConfig
-from zbgym.trainer.base import BaseTrainer, TrainerConfig, TrainingStats
+from zbgym.trainer.base import BaseTrainer, TrainerConfig
 
 
 class PPOTrainer(BaseTrainer):
@@ -138,6 +139,7 @@ class PPOTrainer(BaseTrainer):
         # Combine callbacks
         if callback is not None and dashboard_callback is not None:
             from zbgym.trainer.callbacks import CallbackList
+
             if isinstance(callback, CallbackList):
                 callback.callbacks.append(dashboard_callback)
             else:

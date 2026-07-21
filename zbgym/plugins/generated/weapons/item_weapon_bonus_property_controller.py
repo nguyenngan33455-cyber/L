@@ -32,5 +32,3 @@ from zbgym.plugins.weapon import Weapon, WeaponStats, WeaponType, register_weapo
 )
 class ItemWeaponBonusPropertyController(Weapon):
     """Weapon plugin for ItemWeaponBonusPropertyController."""
-
-    pass

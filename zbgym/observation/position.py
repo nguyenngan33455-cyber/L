@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.typing import NDArray
 
+from zbgym.constants import DEFAULT_ARENA_HEIGHT, DEFAULT_ARENA_WIDTH
 from zbgym.observation.base import (
     Observation,
     ObservationConfig,
     observation_registry,
 )
-from zbgym.constants import DEFAULT_ARENA_WIDTH, DEFAULT_ARENA_HEIGHT
 
 if TYPE_CHECKING:
     from zbgym.env.battle_arena import BattleArenaState
@@ -73,7 +73,7 @@ class PositionObservation(Observation):
             dim += 1
         return dim
 
-    def compute(self, state: "BattleArenaState") -> NDArray[np.float32]:
+    def compute(self, state: BattleArenaState) -> NDArray[np.float32]:
         """Compute position observation."""
         # Get first alive character
         self_char = None

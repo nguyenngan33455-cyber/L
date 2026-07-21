@@ -24,5 +24,3 @@ from zbgym.plugins.character import Character, CharacterStats, register_characte
 )
 class TigerCharacter(Character):
     """Character plugin for Tiger."""
-
-    pass

@@ -4,8 +4,8 @@ This module provides a framework for supporting multiple game types
 with a unified RL interface.
 """
 
-from zbgym.envs.base.environment import BaseEnvironment, EnvironmentConfig
 from zbgym.envs.adapters.zooba import ZoobaAdapter
+from zbgym.envs.base.environment import BaseEnvironment, EnvironmentConfig
 
 __all__ = [
     "BaseEnvironment",

@@ -24,5 +24,3 @@ from zbgym.plugins.character import Character, CharacterStats, register_characte
 )
 class MarmosetCharacter(Character):
     """Character plugin for Marmoset."""
-
-    pass

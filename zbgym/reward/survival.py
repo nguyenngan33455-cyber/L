@@ -5,12 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from zbgym.constants import MAX_HEALTH
 from zbgym.reward.base import (
     Reward,
     RewardConfig,
     reward_registry,
 )
-from zbgym.constants import MAX_HEALTH
 
 if TYPE_CHECKING:
     from zbgym.env.battle_arena import BattleArenaState
@@ -43,8 +43,8 @@ class SurvivalReward(Reward):
 
     def compute(
         self,
-        state: "BattleArenaState",
-        prev_state: "BattleArenaState" | None = None,
+        state: BattleArenaState,
+        prev_state: BattleArenaState | None = None,
     ) -> float:
         """Compute survival reward."""
         # Find self character
@@ -65,7 +65,9 @@ class SurvivalReward(Reward):
 
         # Low health penalty
         if health_ratio < self.config.low_health_threshold:
-            total += self.config.low_health_penalty * (1.0 - health_ratio / self.config.low_health_threshold)
+            total += self.config.low_health_penalty * (
+                1.0 - health_ratio / self.config.low_health_threshold
+            )
 
         return self.process(total)
 

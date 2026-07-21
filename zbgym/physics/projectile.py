@@ -4,14 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING
 
-from zbgym.physics.vector import Vector2D
-from zbgym.physics.body import DynamicBody
 from zbgym.constants import DEFAULT_GRAVITY
-
-if TYPE_CHECKING:
-    from zbgym.engine.event_bus import EventBus
+from zbgym.physics.body import DynamicBody
+from zbgym.physics.vector import Vector2D
 
 
 class ProjectileType(Enum):
@@ -94,7 +90,11 @@ class Projectile(DynamicBody):
             self.velocity *= self.config.drag
 
         # Update position
-        old_position = self.position.copy() if hasattr(self.position, "copy") else Vector2D(self.position.x, self.position.y)
+        old_position = (
+            self.position.copy()
+            if hasattr(self.position, "copy")
+            else Vector2D(self.position.x, self.position.y)
+        )
         self.position += self.velocity * dt
 
         # Track distance

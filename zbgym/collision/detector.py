@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from dataclasses import dataclass
 
-from zbgym.physics.vector import Vector2D
-from zbgym.physics.body import PhysicsBody
 from zbgym.collision.shapes import Circle, Rectangle, create_shape_from_body
-
-if TYPE_CHECKING:
-    from zbgym.engine.event_bus import EventBus
+from zbgym.physics.body import PhysicsBody
+from zbgym.physics.vector import Vector2D
 
 
 @dataclass
@@ -152,18 +149,16 @@ class CollisionDetector:
 
         return collisions
 
-    def _check_collision(
-        self, body_a: PhysicsBody, body_b: PhysicsBody
-    ) -> Collision | None:
+    def _check_collision(self, body_a: PhysicsBody, body_b: PhysicsBody) -> Collision | None:
         """Perform narrow phase collision detection."""
         shape_a = create_shape_from_body(body_a)
         shape_b = create_shape_from_body(body_b)
 
         if isinstance(shape_a, Circle) and isinstance(shape_b, Circle):
             return self._circle_vs_circle(shape_a, shape_b, body_a, body_b)
-        elif isinstance(shape_a, Circle) and isinstance(shape_b, Rectangle):
+        if isinstance(shape_a, Circle) and isinstance(shape_b, Rectangle):
             return self._circle_vs_rectangle(shape_a, shape_b, body_a, body_b)
-        elif isinstance(shape_a, Rectangle) and isinstance(shape_b, Circle):
+        if isinstance(shape_a, Rectangle) and isinstance(shape_b, Circle):
             result = self._circle_vs_rectangle(shape_b, shape_a, body_b, body_a)
             if result:
                 # Swap bodies back
@@ -175,7 +170,7 @@ class CollisionDetector:
                     penetration=result.penetration,
                 )
             return None
-        elif isinstance(shape_a, Rectangle) and isinstance(shape_b, Rectangle):
+        if isinstance(shape_a, Rectangle) and isinstance(shape_b, Rectangle):
             return self._rect_vs_rect(shape_a, shape_b, body_a, body_b)
 
         return None

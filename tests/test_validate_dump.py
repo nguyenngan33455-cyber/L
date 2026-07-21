@@ -1,13 +1,11 @@
 """Tests for dump validation tools."""
 
-import pytest
 import tempfile
-from pathlib import Path
 
 from zbgym.tools.validate_dump import (
-    validate_enum_consistency,
-    validate_class_structure,
     validate_all,
+    validate_class_structure,
+    validate_enum_consistency,
 )
 
 
@@ -24,12 +22,12 @@ public enum CharacterEnum
     public const CharacterEnum Turtle = 2;
 }
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.cs', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".cs", delete=False) as f:
             f.write(content)
             f.flush()
-            
+
             result = validate_enum_consistency(f.name)
-            
+
             assert result.is_valid == True
             assert len(result.errors) == 0
 
@@ -43,12 +41,12 @@ public enum CharacterEnum
     public const CharacterEnum Turtle = 3;
 }
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.cs', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".cs", delete=False) as f:
             f.write(content)
             f.flush()
-            
+
             result = validate_enum_consistency(f.name)
-            
+
             # Gaps should be warnings, not errors
             assert 2 in result.warnings or len(result.warnings) > 0
 
@@ -60,12 +58,12 @@ public class TestClass
     public int value;
 }
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.cs', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".cs", delete=False) as f:
             f.write(content)
             f.flush()
-            
+
             result = validate_class_structure(f.name)
-            
+
             assert result.is_valid == True
 
     def test_validate_class_structure_unbalanced_braces(self):
@@ -75,12 +73,12 @@ public class TestClass
 {
     public int value;
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.cs', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".cs", delete=False) as f:
             f.write(content)
             f.flush()
-            
+
             result = validate_class_structure(f.name)
-            
+
             assert result.is_valid == False
             assert len(result.errors) > 0
 
@@ -90,12 +88,12 @@ public class TestClass
 public class TestClass { }
 public class TestClass { }
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.cs', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".cs", delete=False) as f:
             f.write(content)
             f.flush()
-            
+
             result = validate_class_structure(f.name)
-            
+
             assert result.is_valid == False
 
     def test_validate_all(self):
@@ -108,12 +106,12 @@ public enum TestEnum
 }
 public class TestClass { }
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.cs', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".cs", delete=False) as f:
             f.write(content)
             f.flush()
-            
+
             result = validate_all(f.name)
-            
+
             assert result.is_valid == True
 
 
@@ -123,13 +121,9 @@ class TestValidationResult:
     def test_result_attributes(self):
         """Test result has expected attributes."""
         from zbgym.tools.validate_dump import ValidationResult
-        
-        result = ValidationResult(
-            is_valid=True,
-            errors=[],
-            warnings=["test warning"]
-        )
-        
+
+        result = ValidationResult(is_valid=True, errors=[], warnings=["test warning"])
+
         assert result.is_valid == True
         assert result.errors == []
         assert result.warnings == ["test warning"]

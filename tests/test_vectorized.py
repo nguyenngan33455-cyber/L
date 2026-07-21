@@ -1,12 +1,11 @@
 """Tests for vectorized environments."""
 
 import pytest
-import numpy as np
 
 from zbgym.env.vectorized import (
+    SyncVectorizedEnv,
     VectorizedBattleArena,
     VectorizedState,
-    SyncVectorizedEnv,
     make_vectorized,
 )
 
@@ -49,7 +48,7 @@ class TestVectorizedBattleArena:
         """Test that invalid num_envs raises error."""
         with pytest.raises(ValueError):
             VectorizedBattleArena(num_envs=0)
-        
+
         with pytest.raises(ValueError):
             VectorizedBattleArena(num_envs=-1)
 
@@ -57,7 +56,7 @@ class TestVectorizedBattleArena:
         """Test reset returns observations."""
         env = VectorizedBattleArena(num_envs=4)
         obs, infos = env.reset()
-        
+
         assert obs.shape[0] == 4  # num_envs
         assert len(infos) == 4
         env.close()
@@ -67,7 +66,7 @@ class TestVectorizedBattleArena:
         env = VectorizedBattleArena(num_envs=4)
         seeds = [1, 2, 3, 4]
         obs, infos = env.reset(seeds=seeds)
-        
+
         assert obs.shape[0] == 4
         assert len(infos) == 4
         env.close()
@@ -76,7 +75,7 @@ class TestVectorizedBattleArena:
         """Test get_state returns VectorizedState."""
         env = VectorizedBattleArena(num_envs=2)
         env.reset()
-        
+
         state = env.get_state()
         assert isinstance(state, VectorizedState)
         assert state.num_envs == 2

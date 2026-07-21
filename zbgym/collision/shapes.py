@@ -19,22 +19,18 @@ class Shape(ABC):
     @abstractmethod
     def contains_point(self, point: Vector2D) -> bool:
         """Check if shape contains a point."""
-        pass
 
     @abstractmethod
     def intersects(self, other: Shape) -> bool:
         """Check if shape intersects another."""
-        pass
 
     @abstractmethod
     def get_center(self) -> Vector2D:
         """Get center point of shape."""
-        pass
 
     @abstractmethod
     def get_bounding_radius(self) -> float:
         """Get bounding radius for broad phase."""
-        pass
 
 
 @dataclass
@@ -50,7 +46,7 @@ class Circle(Shape):
     def intersects(self, other: Shape) -> bool:
         if isinstance(other, Circle):
             return self.intersects_circle(other)
-        elif isinstance(other, Rectangle):
+        if isinstance(other, Rectangle):
             return self.intersects_rectangle(other)
         return False
 
@@ -63,9 +59,7 @@ class Circle(Shape):
         closest_x = max(rect.min_x, min(self.center.x, rect.max_x))
         closest_y = max(rect.min_y, min(self.center.y, rect.max_y))
 
-        distance = math.sqrt(
-            (self.center.x - closest_x) ** 2 + (self.center.y - closest_y) ** 2
-        )
+        distance = math.sqrt((self.center.x - closest_x) ** 2 + (self.center.y - closest_y) ** 2)
         return distance < self.radius
 
     def get_center(self) -> Vector2D:
@@ -98,15 +92,12 @@ class Rectangle(Shape):
         return self.max_y - self.min_y
 
     def contains_point(self, point: Vector2D) -> bool:
-        return (
-            self.min_x <= point.x <= self.max_x
-            and self.min_y <= point.y <= self.max_y
-        )
+        return self.min_x <= point.x <= self.max_x and self.min_y <= point.y <= self.max_y
 
     def intersects(self, other: Shape) -> bool:
         if isinstance(other, Circle):
             return other.intersects_rectangle(self)
-        elif isinstance(other, Rectangle):
+        if isinstance(other, Rectangle):
             return self.intersects_rectangle(other)
         return False
 
@@ -135,9 +126,7 @@ class Rectangle(Shape):
         )
 
     @classmethod
-    def from_center_size(
-        cls, center: Vector2D, width: float, height: float
-    ) -> Rectangle:
+    def from_center_size(cls, center: Vector2D, width: float, height: float) -> Rectangle:
         """Create rectangle from center and dimensions."""
         half_w = width / 2
         half_h = height / 2
@@ -151,9 +140,7 @@ class Rectangle(Shape):
     @classmethod
     def from_body(cls, body: PhysicsBody) -> Rectangle:
         """Create rectangle from physics body."""
-        return cls.from_center_size(
-            body.position, body.width, body.height
-        )
+        return cls.from_center_size(body.position, body.width, body.height)
 
 
 def create_shape_from_body(body: PhysicsBody) -> Shape:

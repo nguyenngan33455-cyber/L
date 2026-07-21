@@ -4,13 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING
 
+from zbgym.constants import DEFAULT_FRICTION, DEFAULT_GRAVITY, DEFAULT_MAX_SPEED
 from zbgym.physics.vector import Vector2D
-from zbgym.constants import DEFAULT_GRAVITY, DEFAULT_FRICTION, DEFAULT_MAX_SPEED
-
-if TYPE_CHECKING:
-    from zbgym.physics.movement import MovementSystem
 
 
 class BodyType(Enum):
@@ -68,15 +64,10 @@ class BoundingBox:
 
     def contains_point(self, point: Vector2D) -> bool:
         """Check if box contains a point."""
-        return (
-            self.min_x <= point.x <= self.max_x
-            and self.min_y <= point.y <= self.max_y
-        )
+        return self.min_x <= point.x <= self.max_x and self.min_y <= point.y <= self.max_y
 
     @classmethod
-    def from_center_size(
-        cls, center: Vector2D, width: float, height: float
-    ) -> BoundingBox:
+    def from_center_size(cls, center: Vector2D, width: float, height: float) -> BoundingBox:
         """Create box from center and dimensions."""
         half_w = width / 2
         half_h = height / 2
@@ -132,7 +123,6 @@ class PhysicsBody:
 
     def __post_init__(self) -> None:
         """Post-initialization."""
-        pass
 
     @property
     def bounding_box(self) -> BoundingBox:
@@ -210,7 +200,6 @@ class DynamicBody(PhysicsBody):
 
     def __post_init__(self) -> None:
         """Post-initialization."""
-        pass
 
     def update(self, dt: float, gravity: float = DEFAULT_GRAVITY) -> None:
         """

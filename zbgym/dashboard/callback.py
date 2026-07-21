@@ -7,14 +7,9 @@ with the Stable-Baselines3 training loop.
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-import numpy as np
-
-from zbgym.dashboard.manager import DashboardManager, DashboardManagerConfig
-
-if TYPE_CHECKING:
-    from zbgym.trainer.callbacks import BaseCallback
+from zbgym.dashboard.manager import DashboardManager
 
 
 class DashboardCallback:
@@ -250,7 +245,9 @@ class DashboardCallback:
                 if torch.cuda.is_available():
                     kwargs["gpu_memory_mb"] = torch.cuda.memory_allocated() / (1024 * 1024)
                     kwargs["gpu_percent"] = (
-                        torch.cuda.memory_allocated() / torch.cuda.get_device_properties(0).total_memory * 100
+                        torch.cuda.memory_allocated()
+                        / torch.cuda.get_device_properties(0).total_memory
+                        * 100
                         if torch.cuda.is_available()
                         else 0
                     )
@@ -365,7 +362,10 @@ class DashboardCheckpointCallback:
                     "checkpoint_saved",
                     {
                         "timestep": self._num_timesteps,
-                        "path": str(self._wrapped.save_path / f"{self._wrapped.name_prefix}_{self._num_timesteps}"),
+                        "path": str(
+                            self._wrapped.save_path
+                            / f"{self._wrapped.name_prefix}_{self._num_timesteps}"
+                        ),
                     },
                 )
 

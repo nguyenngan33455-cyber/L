@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import zbgym.data
-
 
 class DataLoader:
     """Load and manage JSON data files."""

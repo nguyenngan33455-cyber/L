@@ -24,8 +24,8 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -115,7 +115,7 @@ def main():
     print("\n" + "=" * 60)
     print("Update Complete!")
     print("=" * 60)
-    print(f"\nGenerated files:")
+    print("\nGenerated files:")
     print(f"  - JSON databases: {output_dir}")
     print(f"  - Plugin code: {plugins_dir}")
     print("\nNext steps:")
@@ -253,7 +253,7 @@ def _generate_skill_plugin(skill, output_dir: Path, verbose: bool = False) -> No
     """Generate a skill plugin file."""
     class_name = "".join(word.capitalize() for word in skill.id.split("_"))
 
-    skill_type = skill.skill_type.upper() if hasattr(skill, 'skill_type') else "ACTIVE"
+    skill_type = skill.skill_type.upper() if hasattr(skill, "skill_type") else "ACTIVE"
 
     content = f'''"""Auto-generated skill plugin: {skill.name}."""
 
@@ -303,7 +303,7 @@ def _generate_init_file(output_dir: Path) -> None:
     # Find all .py files except __init__.py
     py_files = [f.stem for f in output_dir.glob("*.py") if f.stem != "__init__"]
 
-    content = f'''"""Auto-generated plugins."""
+    content = '''"""Auto-generated plugins."""
 
 # Auto-generated plugins from dump.cs
 '''

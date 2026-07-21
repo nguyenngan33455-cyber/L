@@ -1,14 +1,14 @@
 """Tests for ZBGym replay system."""
 
-import pytest
+import numpy as np
+
 from zbgym.replay import (
-    Step,
-    ReplayMetadata,
     Replay,
     ReplayBuffer,
+    ReplayMetadata,
     ReplayRecorder,
+    Step,
 )
-import numpy as np
 
 
 class TestReplayMetadata:
@@ -218,13 +218,13 @@ class TestReplayRecorder:
 
 from zbgym.replay.deterministic import (
     Action,
-    StateSnapshot,
+    DeterministicPlayer,
+    DeterministicRecorder,
+    DeterministicReplay,
     Event,
     ReplayStep,
-    DeterministicReplay,
+    StateSnapshot,
 )
-from zbgym.replay.deterministic import DeterministicRecorder
-from zbgym.replay.deterministic import DeterministicPlayer
 
 
 class TestAction:
@@ -483,16 +483,18 @@ class TestDeterministicReplay:
         for i in range(3):
             snapshot = StateSnapshot(
                 tick=i,
-                state_hash=replay._compute_state_hash(StateSnapshot(
-                    tick=i,
-                    state_hash="",
-                    positions={},
-                    velocities={},
-                    healths={},
-                    shields={},
-                    energies={},
-                    is_alive={},
-                )),
+                state_hash=replay._compute_state_hash(
+                    StateSnapshot(
+                        tick=i,
+                        state_hash="",
+                        positions={},
+                        velocities={},
+                        healths={},
+                        shields={},
+                        energies={},
+                        is_alive={},
+                    )
+                ),
                 positions={},
                 velocities={},
                 healths={},
@@ -579,6 +581,7 @@ class TestDR:
     def test_record_step_numpy(self):
         """Test recording with numpy observation."""
         import numpy as np
+
         recorder = DeterministicRecorder(initial_seed=0)
         recorder.record_step(
             observation=np.array([1.0, 2.0, 3.0]),
@@ -632,14 +635,16 @@ class TestDP:
         """Test iterating through replay."""
         replay = DeterministicReplay(metadata={}, initial_seed=0)
         for i in range(3):
-            replay.add_step(ReplayStep(
-                tick=i,
-                observation=[i],
-                actions=[],
-                rewards={},
-                events=[],
-            ))
-        
+            replay.add_step(
+                ReplayStep(
+                    tick=i,
+                    observation=[i],
+                    actions=[],
+                    rewards={},
+                    events=[],
+                )
+            )
+
         player = DeterministicPlayer(replay)
         steps = list(player)
         assert len(steps) == 3
@@ -651,7 +656,7 @@ class TestDP:
         """Test getting specific step."""
         replay = DeterministicReplay(metadata={}, initial_seed=0)
         replay.add_step(ReplayStep(tick=0, observation=[], actions=[], rewards={}, events=[]))
-        
+
         player = DeterministicPlayer(replay)
         step = player.get_step(0)
         assert step is not None
@@ -674,7 +679,7 @@ class TestDP:
             is_alive={},
         )
         replay.add_snapshot(snapshot)
-        
+
         player = DeterministicPlayer(replay)
         found = player.get_snapshot(5)
         assert found is not None
@@ -686,26 +691,30 @@ class TestDP:
     def test_get_events_of_type(self):
         """Test filtering events by type."""
         replay = DeterministicReplay(metadata={}, initial_seed=0)
-        replay.add_step(ReplayStep(
-            tick=0,
-            observation=[],
-            actions=[],
-            rewards={},
-            events=[
-                Event(tick=0, event_type="damage", data={}),
-                Event(tick=0, event_type="heal", data={}),
-            ],
-        ))
-        replay.add_step(ReplayStep(
-            tick=1,
-            observation=[],
-            actions=[],
-            rewards={},
-            events=[
-                Event(tick=1, event_type="damage", data={}),
-            ],
-        ))
-        
+        replay.add_step(
+            ReplayStep(
+                tick=0,
+                observation=[],
+                actions=[],
+                rewards={},
+                events=[
+                    Event(tick=0, event_type="damage", data={}),
+                    Event(tick=0, event_type="heal", data={}),
+                ],
+            )
+        )
+        replay.add_step(
+            ReplayStep(
+                tick=1,
+                observation=[],
+                actions=[],
+                rewards={},
+                events=[
+                    Event(tick=1, event_type="damage", data={}),
+                ],
+            )
+        )
+
         player = DeterministicPlayer(replay)
         damage_events = player.get_events_of_type("damage")
         assert len(damage_events) == 2
@@ -716,17 +725,19 @@ class TestDP:
     def test_replay_info(self):
         """Test replay info summary."""
         replay = DeterministicReplay(metadata={}, initial_seed=0)
-        replay.add_step(ReplayStep(
-            tick=0,
-            observation=[],
-            actions=[Action(agent_id="a", action_type="x", action_data={})],
-            rewards={},
-            events=[
-                Event(tick=0, event_type="character_death", data={}),
-            ],
-            damages=[{"damage": 50}],
-        ))
-        
+        replay.add_step(
+            ReplayStep(
+                tick=0,
+                observation=[],
+                actions=[Action(agent_id="a", action_type="x", action_data={})],
+                rewards={},
+                events=[
+                    Event(tick=0, event_type="character_death", data={}),
+                ],
+                damages=[{"damage": 50}],
+            )
+        )
+
         player = DeterministicPlayer(replay)
         info = player.replay_info()
         assert info["duration_ticks"] == 1

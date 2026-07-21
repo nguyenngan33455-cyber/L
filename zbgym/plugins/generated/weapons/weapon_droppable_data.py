@@ -32,5 +32,3 @@ from zbgym.plugins.weapon import Weapon, WeaponStats, WeaponType, register_weapo
 )
 class WeaponDroppableData(Weapon):
     """Weapon plugin for WeaponDroppableData."""
-
-    pass

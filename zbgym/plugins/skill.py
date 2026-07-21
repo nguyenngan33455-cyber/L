@@ -3,17 +3,16 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from zbgym.plugins.base import Plugin, PluginMetadata, PluginRegistry
-from zbgym.physics.vector import Vector2D
 from zbgym.constants import SkillType
+from zbgym.physics.vector import Vector2D
+from zbgym.plugins.base import Plugin, PluginMetadata, PluginRegistry
 
 if TYPE_CHECKING:
     from zbgym.engine.event_bus import EventBus
     from zbgym.plugins.character import Character
-    from zbgym.physics.projectile import Projectile
 
 
 @dataclass
@@ -77,7 +76,6 @@ class Skill(Plugin):
 
     def shutdown(self) -> None:
         """Cleanup skill."""
-        pass
 
     def _reset_state(self) -> None:
         """Reset skill state."""
@@ -169,7 +167,6 @@ class Skill(Plugin):
     @abstractmethod
     def _apply_effects(self, target: Vector2D | None) -> None:
         """Apply the skill effects."""
-        pass
 
     def update(self, dt: float) -> None:
         """Update skill state."""

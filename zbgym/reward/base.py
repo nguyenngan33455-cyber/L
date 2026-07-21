@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-from numpy.typing import NDArray
 
 if TYPE_CHECKING:
     from zbgym.env.battle_arena import BattleArenaState
@@ -55,8 +54,8 @@ class Reward(ABC):
     @abstractmethod
     def compute(
         self,
-        state: "BattleArenaState",
-        prev_state: "BattleArenaState" | None = None,
+        state: BattleArenaState,
+        prev_state: BattleArenaState | None = None,
     ) -> float:
         """
         Compute reward from game state.
@@ -68,7 +67,6 @@ class Reward(ABC):
         Returns:
             Reward value
         """
-        pass
 
     def process(self, raw_reward: float) -> float:
         """Process raw reward with scaling and clipping."""

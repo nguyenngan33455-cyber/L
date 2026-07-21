@@ -1,7 +1,7 @@
 """Auto-generated skill plugin: SpeedLifeRegenOnSkillDamagePrimalInstinct."""
 
-from zbgym.plugins.skill import Skill, SkillConfig, SkillType, register_skill
 from zbgym.physics.vector import Vector2D
+from zbgym.plugins.skill import Skill, SkillConfig, SkillType, register_skill
 
 
 @register_skill(

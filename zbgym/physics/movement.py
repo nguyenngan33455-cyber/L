@@ -5,15 +5,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from zbgym.physics.vector import Vector2D
-from zbgym.physics.body import DynamicBody
 from zbgym.constants import (
-    DEFAULT_GRAVITY,
-    DEFAULT_FRICTION,
-    DEFAULT_MAX_SPEED,
     DEFAULT_DASH_SPEED,
+    DEFAULT_FRICTION,
+    DEFAULT_GRAVITY,
     DEFAULT_JUMP_FORCE,
+    DEFAULT_MAX_SPEED,
 )
+from zbgym.physics.body import DynamicBody
+from zbgym.physics.vector import Vector2D
 
 if TYPE_CHECKING:
     from zbgym.engine.event_bus import EventBus
@@ -61,9 +61,7 @@ class MovementConfig:
 
     # Wall
     wall_slide_speed: float = 100.0
-    wall_jump_force: Vector2D = field(
-        default_factory=lambda: Vector2D(300, -400)
-    )
+    wall_jump_force: Vector2D = field(default_factory=lambda: Vector2D(300, -400))
     wall_stick_time: float = 0.1
 
 

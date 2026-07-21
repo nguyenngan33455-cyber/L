@@ -10,7 +10,6 @@ from zbgym.reward.base import (
     RewardConfig,
     reward_registry,
 )
-from zbgym.constants import DEFAULT_ARENA_WIDTH, DEFAULT_ARENA_HEIGHT
 
 if TYPE_CHECKING:
     from zbgym.env.battle_arena import BattleArenaState
@@ -41,8 +40,8 @@ class DeathPenalty(Reward):
 
     def compute(
         self,
-        state: "BattleArenaState",
-        prev_state: "BattleArenaState" | None = None,
+        state: BattleArenaState,
+        prev_state: BattleArenaState | None = None,
     ) -> float:
         """Compute death penalty."""
         if prev_state is None:
@@ -95,8 +94,8 @@ class IdlePenalty(Reward):
 
     def compute(
         self,
-        state: "BattleArenaState",
-        prev_state: "BattleArenaState" | None = None,
+        state: BattleArenaState,
+        prev_state: BattleArenaState | None = None,
     ) -> float:
         """Compute idle penalty."""
         # Find self character
@@ -117,7 +116,7 @@ class IdlePenalty(Reward):
             is_idle = False
 
         # Check if in combat (dealt/received damage recently)
-        if hasattr(state, 'damage_events') and state.damage_events:
+        if hasattr(state, "damage_events") and state.damage_events:
             for event in state.damage_events:
                 if abs(event.value) > self.config.combat_threshold:
                     is_idle = False
@@ -126,9 +125,8 @@ class IdlePenalty(Reward):
         if is_idle:
             self._idle_steps += 1
             return self.process(self.config.idle_penalty * self._idle_steps)
-        else:
-            self._idle_steps = 0
-            return self.process(0.0)
+        self._idle_steps = 0
+        return self.process(0.0)
 
 
 # Register rewards

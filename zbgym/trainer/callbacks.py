@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 
@@ -36,11 +35,9 @@ class BaseCallback:
 
     def on_training_start(self, locals: dict, globals: dict) -> None:
         """Called at the start of training."""
-        pass
 
     def on_training_end(self, locals: dict, globals: dict) -> None:
         """Called at the end of training."""
-        pass
 
 
 class CallbackList:

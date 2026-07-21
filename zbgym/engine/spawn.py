@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from zbgym.engine.map import MapManager, SpawnPoint
-    from zbgym.physics.vector import Vector2D
     from zbgym.engine.event_bus import EventBus
+    from zbgym.engine.map import MapManager, SpawnPoint
 
 
 @dataclass
@@ -91,9 +90,7 @@ class SpawnSystem:
         self._pending_respawns[character_id] = self.config.respawn_time
 
         # Set spawn protection
-        self._spawn_protections[character_id] = (
-            self.config.spawn_protection_time
-        )
+        self._spawn_protections[character_id] = self.config.spawn_protection_time
 
         # Emit spawn event
         if self.event_bus:
@@ -107,9 +104,7 @@ class SpawnSystem:
 
         return True
 
-    def _select_spawn_point(
-        self, team: str | None = None
-    ) -> SpawnPoint | None:
+    def _select_spawn_point(self, team: str | None = None) -> SpawnPoint | None:
         """Select an available spawn point using deterministic RNG."""
         if self.map_manager is None:
             return None
@@ -119,10 +114,7 @@ class SpawnSystem:
             return None
 
         # Get available spawn points
-        available = [
-            sp for sp in map_data.spawn_points
-            if sp.id not in self._used_spawn_points
-        ]
+        available = [sp for sp in map_data.spawn_points if sp.id not in self._used_spawn_points]
 
         if not available:
             # Reset if all used

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -45,7 +45,14 @@ class ZoneObservation(Observation):
 
     def __init__(self, config: ZoneObservationConfig | None = None) -> None:
         self.config = config or ZoneObservationConfig()
-        self._names = ["zone_dist", "zone_dir_x", "zone_dir_y", "in_zone", "danger_level", "zone_radius"]
+        self._names = [
+            "zone_dist",
+            "zone_dir_x",
+            "zone_dir_y",
+            "in_zone",
+            "danger_level",
+            "zone_radius",
+        ]
         self._update_names()
 
     @property
@@ -78,7 +85,7 @@ class ZoneObservation(Observation):
             dim += 1
         return dim
 
-    def compute(self, state: "BattleArenaState") -> NDArray[np.float32]:
+    def compute(self, state: BattleArenaState) -> NDArray[np.float32]:
         """Compute zone observation."""
         # Get self character
         self_char = None
@@ -114,7 +121,11 @@ class ZoneObservation(Observation):
 
         if self.config.include_danger_level:
             # Danger increases as you move away from center
-            danger = min(1.0, distance / state.danger_zone_radius) if state.danger_zone_radius > 0 else 0.0
+            danger = (
+                min(1.0, distance / state.danger_zone_radius)
+                if state.danger_zone_radius > 0
+                else 0.0
+            )
             values.append(danger)
 
         data = np.array(values, dtype=np.float32)

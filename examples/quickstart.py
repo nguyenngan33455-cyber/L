@@ -4,11 +4,10 @@ ZBGym Quickstart Example
 This example demonstrates how to use ZBGym for Reinforcement Learning training.
 """
 
-import numpy as np
 import zbgym
-from zbgym.plugins.character import CharacterStats, register_character, create_character
-from zbgym.plugins.weapon import create_weapon
 from zbgym.physics.vector import Vector2D
+from zbgym.plugins.character import CharacterStats, create_character, register_character
+from zbgym.plugins.weapon import create_weapon
 
 
 def main():
@@ -17,11 +16,15 @@ def main():
     print("=" * 60)
 
     # Register a custom character
-    @register_character("warrior", "Warrior", CharacterStats(
-        max_health=150,
-        max_shield=30,
-        move_speed=350,
-    ))
+    @register_character(
+        "warrior",
+        "Warrior",
+        CharacterStats(
+            max_health=150,
+            max_shield=30,
+            move_speed=350,
+        ),
+    )
     class WarriorCharacter(zbgym.plugins.Character):
         pass
 

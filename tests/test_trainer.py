@@ -1,15 +1,13 @@
 """Tests for ZBGym trainer."""
 
-import pytest
 from zbgym.trainer import (
+    BaseCallback,
+    CheckpointCallback,
+    EarlyStoppingCallback,
+    PPOTrainer,
+    ProgressCallback,
     TrainerConfig,
     TrainingStats,
-    PPOTrainer,
-    CheckpointCallback,
-    EvaluationCallback,
-    ProgressCallback,
-    EarlyStoppingCallback,
-    BaseCallback,
 )
 
 

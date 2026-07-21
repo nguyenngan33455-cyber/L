@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import sys
-from typing import Any
 
 
 class CLI:
@@ -46,6 +45,7 @@ class CLI:
         # Import and run the command
         try:
             from zbgym.cli import commands
+
             cmd_func = getattr(commands, command, None)
             if cmd_func is None:
                 print(f"Error: Command '{command}' not implemented")
@@ -71,6 +71,7 @@ class CLI:
     def show_version(self) -> int:
         """Show version information."""
         from zbgym import __version__
+
         print(f"ZBGym version {__version__}")
         return 0
 

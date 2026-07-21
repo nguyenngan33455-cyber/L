@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 from uuid import uuid4
 
 from zbgym.constants import EventType
-
 
 T = TypeVar("T")
 
@@ -144,9 +143,7 @@ class EventBus:
         Returns:
             The emitted event
         """
-        if isinstance(event, str):
-            event = Event(type=event, data=data)
-        elif isinstance(event, EventType):
+        if isinstance(event, str) or isinstance(event, EventType):
             event = Event(type=event, data=data)
         elif data:
             event.data.update(data)
@@ -324,7 +321,6 @@ class EventBus:
             The event if received, None if timeout
         """
         import threading
-        import time
 
         result: list[Event] = []
         event_received = threading.Event()

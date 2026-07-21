@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
-from zbgym.engine.event_bus import EventBus, Event
 from zbgym.constants import EventType
+from zbgym.engine.event_bus import Event, EventBus
 
 
 @dataclass
@@ -197,8 +197,7 @@ class TickSystem:
         self._delta_time = current_time - self._last_tick_time
 
         # Clamp delta time to prevent spiral of death
-        if self._delta_time > self._max_frame_time:
-            self._delta_time = self._max_frame_time
+        self._delta_time = min(self._delta_time, self._max_frame_time)
 
         self._last_tick_time = current_time
         self._elapsed_time += self._delta_time

@@ -116,11 +116,11 @@ class BaseEnvironment(ABC, gym.Env):
         """
 
     @abstractmethod
-    def get_state(self) -> "GameState":
+    def get_state(self) -> GameState:
         """Get current game state."""
 
     @abstractmethod
-    def set_state(self, state: "GameState") -> None:
+    def set_state(self, state: GameState) -> None:
         """Set game state."""
 
     def render(self) -> NDArray[np.uint8] | None:
@@ -140,7 +140,6 @@ class BaseEnvironment(ABC, gym.Env):
 
     def close(self) -> None:
         """Clean up environment."""
-        pass
 
     @property
     def spec(self) -> gym.envs.env_spec.EnvSpec | None:
@@ -183,7 +182,9 @@ class VectorizedBase(ABC):
     @abstractmethod
     def step(
         self, actions: NDArray[np.float32]
-    ) -> tuple[NDArray[np.float32], NDArray[np.float32], NDArray[np.bool_], NDArray[np.bool_], list[dict]]:
+    ) -> tuple[
+        NDArray[np.float32], NDArray[np.float32], NDArray[np.bool_], NDArray[np.bool_], list[dict]
+    ]:
         """Step all environments."""
 
     @abstractmethod

@@ -1,17 +1,17 @@
 """Tests for ZBGym reward system."""
 
 import pytest
-import numpy as np
+
+from zbgym.env.battle_arena import BattleArenaState, CharacterState
+from zbgym.physics.vector import Vector2D
 from zbgym.reward import (
+    DeathPenalty,
+    IdlePenalty,
+    KillReward,
     RewardBuilder,
     RewardBuilderConfig,
     SurvivalReward,
-    KillReward,
-    DeathPenalty,
-    IdlePenalty,
 )
-from zbgym.env.battle_arena import BattleArenaState, CharacterState
-from zbgym.physics.vector import Vector2D
 
 
 @pytest.fixture
@@ -117,9 +117,7 @@ class TestRewardBuilder:
 
     def test_builder_creation(self):
         """Test creating a reward builder."""
-        config = RewardBuilderConfig(
-            reward_types=["survival"]
-        )
+        config = RewardBuilderConfig(reward_types=["survival"])
         builder = RewardBuilder(config=config)
 
         assert builder is not None
@@ -127,9 +125,7 @@ class TestRewardBuilder:
 
     def test_build_reward(self, mock_state):
         """Test building complete reward."""
-        config = RewardBuilderConfig(
-            reward_types=["survival", "death_penalty"]
-        )
+        config = RewardBuilderConfig(reward_types=["survival", "death_penalty"])
         builder = RewardBuilder(config=config)
 
         result = builder.build(mock_state)

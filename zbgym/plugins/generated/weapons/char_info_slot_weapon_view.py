@@ -32,5 +32,3 @@ from zbgym.plugins.weapon import Weapon, WeaponStats, WeaponType, register_weapo
 )
 class CharInfoSlotWeaponView(Weapon):
     """Weapon plugin for CharInfoSlotWeaponView."""
-
-    pass

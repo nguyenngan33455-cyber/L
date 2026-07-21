@@ -8,10 +8,10 @@ from typing import TYPE_CHECKING, Any
 
 import yaml
 
-from zbgym.plugins.base import Plugin, PluginMetadata, PluginRegistry
 from zbgym.constants import WeaponType
+from zbgym.physics.projectile import Projectile, ProjectileConfig
 from zbgym.physics.vector import Vector2D
-from zbgym.physics.projectile import Projectile, ProjectileConfig, ProjectileType
+from zbgym.plugins.base import Plugin, PluginMetadata, PluginRegistry
 
 if TYPE_CHECKING:
     from zbgym.engine.event_bus import EventBus
@@ -111,7 +111,6 @@ class Weapon(Plugin):
 
     def shutdown(self) -> None:
         """Cleanup weapon."""
-        pass
 
     def _reset_state(self) -> None:
         """Reset weapon to ready state."""
@@ -155,7 +154,6 @@ class Weapon(Plugin):
         # Create projectiles
         for i in range(self.config.stats.projectile_count):
             # Apply spread using seeded RNG
-            import math
 
             spread = self.config.stats.spread
             if spread > 0:

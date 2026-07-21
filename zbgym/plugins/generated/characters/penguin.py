@@ -24,5 +24,3 @@ from zbgym.plugins.character import Character, CharacterStats, register_characte
 )
 class PenguinCharacter(Character):
     """Character plugin for Penguin."""
-
-    pass

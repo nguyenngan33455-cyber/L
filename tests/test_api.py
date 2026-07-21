@@ -1,7 +1,6 @@
 """Tests for ZBGym API."""
 
-import pytest
-from zbgym.api import DashboardAPI, TrainingSession, ModelInfo
+from zbgym.api import DashboardAPI, ModelInfo, TrainingSession
 
 
 class TestDashboardAPI:

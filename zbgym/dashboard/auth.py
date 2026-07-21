@@ -13,7 +13,6 @@ import requests
 from zbgym.dashboard.config import DashboardConfig
 from zbgym.dashboard.exceptions import DashboardAuthError, DashboardConnectionError
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -69,10 +68,7 @@ class AuthManager:
             if response.get("success"):
                 self._authenticated = True
                 self._auth_token = response.get("token")
-                logger.info(
-                    f"Authenticated with Dashboard "
-                    f"(key: {self._config.masked_api_key()})"
-                )
+                logger.info(f"Authenticated with Dashboard (key: {self._config.masked_api_key()})")
             else:
                 reason = response.get("error", "Invalid response")
                 raise DashboardAuthError(

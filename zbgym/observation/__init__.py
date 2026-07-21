@@ -3,8 +3,8 @@
 from zbgym.observation.base import (
     Observation,
     ObservationConfig,
-    ObservationResult,
     ObservationRegistry,
+    ObservationResult,
     observation_registry,
 )
 from zbgym.observation.builder import (
@@ -12,9 +12,9 @@ from zbgym.observation.builder import (
     ObservationBuilderConfig,
     get_default_registry,
 )
+from zbgym.observation.enemy import EnemyObservation, EnemyObservationConfig
 from zbgym.observation.health import HealthObservation, HealthObservationConfig
 from zbgym.observation.position import PositionObservation, PositionObservationConfig
-from zbgym.observation.enemy import EnemyObservation, EnemyObservationConfig
 from zbgym.observation.zone import ZoneObservation, ZoneObservationConfig
 
 __all__ = [

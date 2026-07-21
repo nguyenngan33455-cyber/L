@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import numpy as np
 from numpy.typing import NDArray
@@ -57,7 +57,7 @@ class Observation(ABC):
         return self.get_dimension()
 
     @abstractmethod
-    def compute(self, state: "BattleArenaState") -> NDArray[np.float32]:
+    def compute(self, state: BattleArenaState) -> NDArray[np.float32]:
         """
         Compute observation from game state.
 
@@ -67,12 +67,10 @@ class Observation(ABC):
         Returns:
             Observation array
         """
-        pass
 
     @abstractmethod
     def get_dimension(self) -> int:
         """Get the dimension of this observation."""
-        pass
 
     def normalize(self, data: NDArray[np.float32]) -> NDArray[np.float32]:
         """Normalize observation data."""

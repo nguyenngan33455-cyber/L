@@ -32,5 +32,3 @@ from zbgym.plugins.weapon import Weapon, WeaponStats, WeaponType, register_weapo
 )
 class WeaponSkinAddressableLoader(Weapon):
     """Weapon plugin for WeaponSkinAddressableLoader."""
-
-    pass

@@ -142,9 +142,7 @@ class MapManager:
             and 0 <= position.y <= self._current_map.height
         )
 
-    def is_line_of_sight_clear(
-        self, start: Vector2D, end: Vector2D
-    ) -> bool:
+    def is_line_of_sight_clear(self, start: Vector2D, end: Vector2D) -> bool:
         """Check if line of sight is clear between two points."""
         if self._current_map is None:
             return True
@@ -155,12 +153,9 @@ class MapManager:
 
         return True
 
-    def _line_intersects_rect(
-        self, start: Vector2D, end: Vector2D, obstacle: Obstacle
-    ) -> bool:
+    def _line_intersects_rect(self, start: Vector2D, end: Vector2D, obstacle: Obstacle) -> bool:
         """Check if line intersects rectangle."""
         # Simple check using bounding box
-        from zbgym.physics.vector import Vector2D
 
         min_x = obstacle.position.x - obstacle.width / 2
         max_x = obstacle.position.x + obstacle.width / 2
@@ -174,8 +169,10 @@ class MapManager:
         t_min = 0.0
         t_max = 1.0
 
-        for axis in [(dx, min_x - start.x, max_x - start.x),
-                     (dy, min_y - start.y, max_y - start.y)]:
+        for axis in [
+            (dx, min_x - start.x, max_x - start.x),
+            (dy, min_y - start.y, max_y - start.y),
+        ]:
             d, p1, p2 = axis
             if d != 0:
                 t1 = p1 / d

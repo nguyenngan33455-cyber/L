@@ -26,10 +26,10 @@ from __future__ import annotations
 
 import logging
 import threading
-import time
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
 from zbgym.dashboard.auth import AuthManager
 from zbgym.dashboard.config import (
@@ -41,22 +41,15 @@ from zbgym.dashboard.config import (
 from zbgym.dashboard.connection import DashboardConnection
 from zbgym.dashboard.events import Event
 from zbgym.dashboard.exceptions import (
-    DashboardAuthError,
     DashboardConnectionError,
-    DashboardSessionError,
 )
-from zbgym.dashboard.metrics import Metrics
 from zbgym.dashboard.models import (
-    CheckpointData,
     EventData,
     LogLevel,
-    MetricsData,
-    ReplayData,
     TrainingSession,
 )
 from zbgym.dashboard.packet import PacketBuilder, PacketType
 from zbgym.dashboard.session import SessionManager
-
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +127,7 @@ class DashboardClient:
                 DashboardClient._instance = self
 
     @classmethod
-    def get_instance(cls) -> "DashboardClient | None":
+    def get_instance(cls) -> DashboardClient | None:
         """Get the singleton instance.
 
         Returns:
@@ -148,7 +141,7 @@ class DashboardClient:
         url: str | None = None,
         api_key: str | None = None,
         **kwargs: Any,
-    ) -> "DashboardClient":
+    ) -> DashboardClient:
         """Connect to Dashboard server.
 
         Args:
@@ -274,9 +267,7 @@ class DashboardClient:
             DashboardConnectionError: If not connected.
         """
         if not self.is_connected:
-            raise DashboardConnectionError(
-                "Not connected to Dashboard. Call connect() first."
-            )
+            raise DashboardConnectionError("Not connected to Dashboard. Call connect() first.")
 
     # Session management
 
@@ -405,7 +396,7 @@ class DashboardClient:
         url: str,
         api_key: str,
         **kwargs: Any,
-    ) -> Generator["DashboardClient", None, None]:
+    ) -> Generator[DashboardClient, None, None]:
         """Context manager for connect + session lifecycle.
 
         Args:
@@ -525,10 +516,7 @@ class DashboardClient:
 
         # Update session timestep if provided
         if timestep is not None and self._session_manager.is_active:
-            if (
-                timestep
-                > self._session_manager.current_session.current_timestep
-            ):
+            if timestep > self._session_manager.current_session.current_timestep:
                 self._session_manager.update(current_timestep=timestep)
 
     def publish_event(
@@ -854,7 +842,7 @@ class DashboardClient:
 
     # Context manager support
 
-    def __enter__(self) -> "DashboardClient":
+    def __enter__(self) -> DashboardClient:
         """Context manager entry."""
         return self
 

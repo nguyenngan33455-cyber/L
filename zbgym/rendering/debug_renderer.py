@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from zbgym.physics.vector import Vector2D
 from zbgym.physics.body import PhysicsBody
+from zbgym.physics.vector import Vector2D
 
 if TYPE_CHECKING:
     from zbgym.env.battle_arena import BattleArena
@@ -123,7 +123,7 @@ class DebugRenderer:
         self._render_buffer: np.ndarray | None = None
 
     @classmethod
-    def from_env(cls, env: "BattleArena", scale: float = 1.0) -> "DebugRenderer":
+    def from_env(cls, env: BattleArena, scale: float = 1.0) -> DebugRenderer:
         """
         Create a DebugRenderer from an environment.
 
@@ -187,7 +187,9 @@ class DebugRenderer:
             )
         )
 
-    def render_collision(self, point: Vector2D, normal: Vector2D, color: DebugColor = DebugColor.RED) -> None:
+    def render_collision(
+        self, point: Vector2D, normal: Vector2D, color: DebugColor = DebugColor.RED
+    ) -> None:
         """Render collision point and normal."""
         if DebugLayer.COLLISION not in self.active_layers:
             return
@@ -247,7 +249,9 @@ class DebugRenderer:
                     shape_type="line",
                     position=position,
                     end_position=trail_end,
-                    color=DebugColor(*proj_color.rgb if hasattr(proj_color, "rgb") else (1.0, 1.0, 1.0), 0.5),
+                    color=DebugColor(
+                        *proj_color.rgb if hasattr(proj_color, "rgb") else (1.0, 1.0, 1.0), 0.5
+                    ),
                     layer=DebugLayer.PROJECTILES,
                 )
             )
@@ -489,7 +493,7 @@ class DebugRenderer:
             )
         )
 
-    def render_from_env(self, env: "BattleArena") -> None:
+    def render_from_env(self, env: BattleArena) -> None:
         """
         Render debug info from an environment.
 
@@ -558,7 +562,8 @@ class DebugRenderer:
                 self._render_line(px, py, ex, ey, shape.color)
         elif shape.shape_type == "rectangle":
             self._render_rectangle(
-                px, py,
+                px,
+                py,
                 int(shape.size * self.scale),
                 int(shape.size2 * self.scale),
                 shape.color,
@@ -573,7 +578,7 @@ class DebugRenderer:
 
         for y in range(max(0, cy - radius), min(self.height, cy + radius + 1)):
             for x in range(max(0, cx - radius), min(self.width, cx + radius + 1)):
-                if (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2:
+                if (x - cx) ** 2 + (y - cy) ** 2 <= radius**2:
                     self._render_buffer[y, x] = color.to_tuple()
 
     def _render_line(self, x1: int, y1: int, x2: int, y2: int, color: DebugColor) -> None:
@@ -635,12 +640,12 @@ class DebugRenderer:
             RGB array if mode="rgb_array", None otherwise
         """
         image = self.to_image()
-        
+
         if mode == "human":
             # For human mode, caller should handle display
             # Just return None as per gym convention
             return None
-        
+
         return image
 
     def close(self) -> None:

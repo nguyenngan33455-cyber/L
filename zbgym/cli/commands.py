@@ -81,6 +81,7 @@ def train(args: list[str]) -> int:
 
     # Save model
     import time
+
     save_path = Path(parsed.save_dir)
     save_path.mkdir(parents=True, exist_ok=True)
     model.save(save_path / f"model_{int(time.time())}")
@@ -117,6 +118,7 @@ def evaluate(args: list[str]) -> int:
 
     # Create environment
     import gymnasium as gym
+
     env = gym.make(parsed.env)
 
     # Evaluate
@@ -129,7 +131,8 @@ def evaluate(args: list[str]) -> int:
     )
 
     import numpy as np
-    print(f"\nResults:")
+
+    print("\nResults:")
     print(f"  Mean reward: {np.mean(rewards):.2f} ± {np.std(rewards):.2f}")
     print(f"  Mean length: {np.mean(lengths):.2f} ± {np.std(lengths):.2f}")
 
@@ -152,6 +155,7 @@ def replay(args: list[str]) -> int:
 
     try:
         from zbgym.replay import ReplayRecorder
+
         recorder = ReplayRecorder()
         replay = recorder.load(parsed.replay)
 
@@ -181,6 +185,7 @@ def dashboard(args: list[str]) -> int:
 
     try:
         import uvicorn
+
         from zbgym.api import api
 
         uvicorn.run(
@@ -212,6 +217,7 @@ def plugins(args: list[str]) -> int:
         print("\nCharacters:")
         try:
             from zbgym.plugins.character import character_registry
+
             for pid in character_registry.list_plugins():
                 print(f"  - {pid}")
         except Exception:
@@ -221,6 +227,7 @@ def plugins(args: list[str]) -> int:
         print("\nWeapons:")
         try:
             from zbgym.plugins.weapon import weapon_registry
+
             for pid in weapon_registry.list_plugins():
                 print(f"  - {pid}")
         except Exception:
@@ -230,6 +237,7 @@ def plugins(args: list[str]) -> int:
         print("\nSkills:")
         try:
             from zbgym.plugins.skill import skill_registry
+
             for pid in skill_registry.list_plugins():
                 print(f"  - {pid}")
         except Exception:
@@ -266,7 +274,6 @@ def doctor(args: list[str]) -> int:
     print("=" * 50)
 
     # Check Python version
-    import sys
     print(f"\nPython: {sys.version}")
     if sys.version_info < (3, 8):
         print("  ⚠️  Python 3.8+ recommended")

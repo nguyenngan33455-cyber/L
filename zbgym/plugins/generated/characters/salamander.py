@@ -24,5 +24,3 @@ from zbgym.plugins.character import Character, CharacterStats, register_characte
 )
 class SalamanderCharacter(Character):
     """Character plugin for Salamander."""
-
-    pass

@@ -3,7 +3,6 @@
 from enum import Enum
 from typing import Final
 
-
 # Physics constants
 DEFAULT_GRAVITY: Final[float] = 980.0  # pixels/s^2
 DEFAULT_FRICTION: Final[float] = 0.98

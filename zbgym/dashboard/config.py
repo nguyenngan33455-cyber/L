@@ -10,7 +10,6 @@ import os
 from dataclasses import dataclass, field
 from typing import ClassVar
 
-
 # Default configuration values
 DEFAULT_URL = "http://localhost:8080"
 DEFAULT_WS_URL = "ws://localhost:8080/ws"
@@ -109,27 +108,19 @@ class DashboardConfig:
             raise ValueError(f"timeout must be positive, got {self.timeout}")
 
         if self.heartbeat_interval <= 0:
-            raise ValueError(
-                f"heartbeat_interval must be positive, got {self.heartbeat_interval}"
-            )
+            raise ValueError(f"heartbeat_interval must be positive, got {self.heartbeat_interval}")
 
         if self.max_queue_size <= 0:
-            raise ValueError(
-                f"max_queue_size must be positive, got {self.max_queue_size}"
-            )
+            raise ValueError(f"max_queue_size must be positive, got {self.max_queue_size}")
 
         if self.batch_size <= 0:
             raise ValueError(f"batch_size must be positive, got {self.batch_size}")
 
         if self.batch_interval <= 0:
-            raise ValueError(
-                f"batch_interval must be positive, got {self.batch_interval}"
-            )
+            raise ValueError(f"batch_interval must be positive, got {self.batch_interval}")
 
         if self.reconnect_delay <= 0:
-            raise ValueError(
-                f"reconnect_delay must be positive, got {self.reconnect_delay}"
-            )
+            raise ValueError(f"reconnect_delay must be positive, got {self.reconnect_delay}")
 
         if self.max_reconnect_delay < self.reconnect_delay:
             raise ValueError(
@@ -139,8 +130,7 @@ class DashboardConfig:
 
         if self.max_reconnect_attempts < 0:
             raise ValueError(
-                f"max_reconnect_attempts must be non-negative, "
-                f"got {self.max_reconnect_attempts}"
+                f"max_reconnect_attempts must be non-negative, got {self.max_reconnect_attempts}"
             )
 
         if self.url and not self.url.startswith(("http://", "https://")):
@@ -161,7 +151,7 @@ class DashboardConfig:
         # Derive WS URL from HTTP URL
         if self.url.startswith("https://"):
             return self.url.replace("https://", "wss://") + "/ws"
-        elif self.url.startswith("http://"):
+        if self.url.startswith("http://"):
             return self.url.replace("http://", "ws://") + "/ws"
 
         return self.ws_url or DEFAULT_WS_URL
@@ -192,8 +182,7 @@ class DashboardConfig:
             url=os.environ.get("ZBGYM_DASHBOARD_URL", DEFAULT_URL),
             api_key=os.environ.get("ZBGYM_DASHBOARD_API_KEY"),
             ws_url=os.environ.get("ZBGYM_DASHBOARD_WS_URL"),
-            enabled=os.environ.get("ZBGYM_DASHBOARD_ENABLED", "true").lower()
-            == "true",
+            enabled=os.environ.get("ZBGYM_DASHBOARD_ENABLED", "true").lower() == "true",
             log_level=os.environ.get("ZBGYM_DASHBOARD_LOG_LEVEL", "INFO"),
         )
 
@@ -303,11 +292,7 @@ def configure(
     global _global_config
 
     if _global_config is None:
-        _global_config = DashboardConfig(
-            url=url or DEFAULT_URL,
-            api_key=api_key,
-            **kwargs
-        )
+        _global_config = DashboardConfig(url=url or DEFAULT_URL, api_key=api_key, **kwargs)
     else:
         # Update existing config
         if url is not None:

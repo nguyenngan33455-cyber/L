@@ -3,25 +3,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, SupportsFloat
 
 import gymnasium as gym
 import numpy as np
 from numpy.typing import NDArray
 
-from zbgym.config import ZBGymConfig, EnvironmentConfig
+from zbgym.config import EnvironmentConfig
 from zbgym.constants import (
-    DEFAULT_ARENA_WIDTH,
-    DEFAULT_ARENA_HEIGHT,
+    MAX_ENERGY,
     MAX_HEALTH,
     MAX_SHIELD,
-    MAX_ENERGY,
-    DEFAULT_TICK_RATE,
 )
-from zbgym.engine.event_bus import EventBus, Event
+from zbgym.engine.event_bus import Event, EventBus
 from zbgym.engine.tick_system import TickSystem
+from zbgym.physics.movement import MovementConfig, MovementSystem
 from zbgym.physics.vector import Vector2D
-from zbgym.physics.movement import MovementSystem, MovementConfig
 
 
 @dataclass
@@ -131,7 +127,7 @@ class BattleArena(gym.Env):
         self._episode_reward = 0.0
         # Max episode steps: 1000 for faster training cycles
         # Can be overridden via config
-        self._max_episode_steps = getattr(config, 'max_episode_steps', 1000) if config else 1000
+        self._max_episode_steps = getattr(config, "max_episode_steps", 1000) if config else 1000
         self._current_step = 0
 
         # Spaces
@@ -214,7 +210,7 @@ class BattleArena(gym.Env):
             self._np_random = np.random.default_rng(seed)
         elif not hasattr(self, "_np_random") or self._np_random is None:
             self._np_random = np.random.default_rng()
-        
+
         # Store seed for reproducibility
         self._seed = seed
 
@@ -229,11 +225,14 @@ class BattleArena(gym.Env):
             safe_zone_radius=min(
                 self.config.config.arena_width,
                 self.config.config.arena_height,
-            ) / 2,
+            )
+            / 2,
             danger_zone_radius=min(
                 self.config.config.arena_width,
                 self.config.config.arena_height,
-            ) / 2 + 200,
+            )
+            / 2
+            + 200,
         )
 
         # Initialize characters with deterministic spawn
@@ -248,9 +247,7 @@ class BattleArena(gym.Env):
         self._current_step = 0
 
         # Emit match start event
-        self.event_bus.emit(
-            Event(type="match_start", data={"state": self._state})
-        )
+        self.event_bus.emit(Event(type="match_start", data={"state": self._state}))
 
         return self._get_obs(), self._get_info()
 
@@ -336,7 +333,7 @@ class BattleArena(gym.Env):
     def _process_action(self, action: NDArray[np.float32] | int) -> float:
         """Process action and calculate reward."""
         reward = 0.0
-        
+
         # Store previous state for delta calculations
         prev_damage_dealt = {cid: c.damage_dealt for cid, c in self._state.characters.items()}
         prev_kills = {cid: c.kills for cid, c in self._state.characters.items()}
@@ -353,7 +350,7 @@ class BattleArena(gym.Env):
 
         # Check if agent is moving
         is_moving = abs(move_x) > 0.1 or abs(move_y) > 0.1
-        move_magnitude = (move_x ** 2 + move_y ** 2) ** 0.5
+        move_magnitude = (move_x**2 + move_y**2) ** 0.5
 
         # Idle penalty
         if not is_moving:
@@ -364,13 +361,15 @@ class BattleArena(gym.Env):
             reward += 0.02 * min(move_magnitude, 1.0)
 
         # Get self character (first agent)
-        self_char = next((c for c in self._state.characters.values() if c.id.startswith("agent_")), None)
-        
+        self_char = next(
+            (c for c in self._state.characters.values() if c.id.startswith("agent_")), None
+        )
+
         if self_char:
             if self_char.is_alive:
                 # Survival reward
                 reward += self.reward_config.get("survival_reward", 0.01)
-                
+
                 # Health-based reward/penalty
                 health_pct = self_char.health / MAX_HEALTH
                 if health_pct < 0.3:
@@ -386,7 +385,7 @@ class BattleArena(gym.Env):
             damage_delta = char.damage_dealt - prev_damage_dealt[char_id]
             if damage_delta > 0:
                 reward += damage_delta * self.reward_config.get("damage_reward_ratio", 0.1)
-            
+
             # Kill reward
             if char.kills > prev_kills[char_id]:
                 reward += self.reward_config.get("kill_reward", 10.0)
@@ -399,11 +398,13 @@ class BattleArena(gym.Env):
                 reward -= 0.02 * (zone_danger - 0.8)
 
         # Store action
-        self._action_history.append({
-            "step": self._current_step,
-            "move": (move_x, move_y),
-            "aim": (aim_x, aim_y),
-        })
+        self._action_history.append(
+            {
+                "step": self._current_step,
+                "move": (move_x, move_y),
+                "aim": (aim_x, aim_y),
+            }
+        )
 
         return reward
 
@@ -443,25 +444,25 @@ class BattleArena(gym.Env):
 
         # Check zone damage with dt
         self._update_zone(dt)
-    
+
     def _update_combat(self, dt: float = 1.0) -> None:
         """Handle character-to-character combat.
-        
+
         Auto-attack system:
         - Characters within attack range deal damage to each other
         - Damage scaled by dt for time consistency
         """
         attack_range = 100.0  # pixels
         base_damage = 100.0  # damage per second (higher for faster combat)
-        
+
         for attacker in self._state.characters.values():
             if not attacker.is_alive:
                 continue
-            
+
             for target in self._state.characters.values():
                 if target.id == attacker.id or not target.is_alive:
                     continue
-                
+
                 # Check if in range
                 distance = attacker.position.distance_to(target.position)
                 if distance <= attack_range:
@@ -470,14 +471,14 @@ class BattleArena(gym.Env):
                     target.health -= damage
                     attacker.damage_dealt += damage
                     target.damage_taken += damage
-                    
+
                     # Check for kill
                     if target.health <= 0:
                         target.health = 0
                         target.is_alive = False
                         target.deaths += 1
                         attacker.kills += 1
-                        
+
                         # Emit death event
                         self.event_bus.emit(
                             Event(
@@ -492,13 +493,13 @@ class BattleArena(gym.Env):
 
     def _update_zone(self, dt: float = 1.0) -> None:
         """Update safe/danger zone.
-        
+
         Args:
             dt: Delta time in seconds
         """
         center = self._state.safe_zone_center
         safe_radius = self._state.safe_zone_radius
-        
+
         # Zone damage rate (per second when outside zone)
         zone_damage_rate = 100.0  # HP per second
 
@@ -566,7 +567,10 @@ class BattleArena(gym.Env):
 
         # Zone info
         if self.obs_config.get("include_zone", True):
-            obs[idx] = self_char.position.distance_to(self._state.safe_zone_center) / self._state.safe_zone_radius
+            obs[idx] = (
+                self_char.position.distance_to(self._state.safe_zone_center)
+                / self._state.safe_zone_radius
+            )
             idx += 1
 
         # Enemy observations
@@ -580,8 +584,12 @@ class BattleArena(gym.Env):
                     break
 
                 # Relative position
-                rel_x = (char.position.x - self_char.position.x) / self.obs_config.get("vision_range", 500.0)
-                rel_y = (char.position.y - self_char.position.y) / self.obs_config.get("vision_range", 500.0)
+                rel_x = (char.position.x - self_char.position.x) / self.obs_config.get(
+                    "vision_range", 500.0
+                )
+                rel_y = (char.position.y - self_char.position.y) / self.obs_config.get(
+                    "vision_range", 500.0
+                )
 
                 obs[idx] = np.clip(rel_x, -1, 1)
                 obs[idx + 1] = np.clip(rel_y, -1, 1)
@@ -607,25 +615,25 @@ class BattleArena(gym.Env):
 
     def _is_terminated(self) -> bool:
         """Check if episode is terminated (natural end conditions).
-        
+
         Gymnasium standard:
         - terminated = episode ended due to environment (all dead, winner, time limit)
         - truncated = episode ended due to external constraint (max steps)
         """
         alive_agents = [c for c in self._state.characters.values() if c.is_alive]
-        
+
         # Check if all dead (natural death)
         if len(alive_agents) == 0:
             return True
-        
+
         # Check if only 1 agent remains (natural winner)
         if len(alive_agents) == 1:
             return True
-        
+
         # Check time limit (natural timeout)
         if self._state.elapsed_time >= self._state.match_duration:
             return True
-        
+
         # NOTE: max_steps is handled as truncated in step(), not here
 
         return False
@@ -637,7 +645,9 @@ class BattleArena(gym.Env):
 
         # Simple text rendering
         if self.render_mode == "human":
-            print(f"Step {self._current_step}: {len(self._state.characters)} characters, {sum(1 for c in self._state.characters.values() if c.is_alive)} alive")
+            print(
+                f"Step {self._current_step}: {len(self._state.characters)} characters, {sum(1 for c in self._state.characters.values() if c.is_alive)} alive"
+            )
             return None
 
         # RGB array
@@ -680,7 +690,7 @@ class BattleArena(gym.Env):
         return None
 
     @property
-    def unwrapped(self) -> "BattleArena":
+    def unwrapped(self) -> BattleArena:
         """Get unwrapped environment."""
         return self
 

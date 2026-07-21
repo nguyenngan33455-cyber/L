@@ -1,16 +1,17 @@
 """Tests for ZBGym observation system."""
 
-import pytest
 import numpy as np
+import pytest
+
+from zbgym.env.battle_arena import BattleArenaState, CharacterState
 from zbgym.observation import (
+    EnemyObservation,
+    HealthObservation,
     ObservationBuilder,
     ObservationBuilderConfig,
-    HealthObservation,
     PositionObservation,
-    EnemyObservation,
     ZoneObservation,
 )
-from zbgym.env.battle_arena import BattleArenaState, CharacterState
 from zbgym.physics.vector import Vector2D
 
 
@@ -150,9 +151,7 @@ class TestObservationBuilder:
 
     def test_builder_creation(self):
         """Test creating an observation builder."""
-        config = ObservationBuilderConfig(
-            observation_types=["health", "position"]
-        )
+        config = ObservationBuilderConfig(observation_types=["health", "position"])
         builder = ObservationBuilder(config=config)
 
         assert builder is not None
@@ -191,9 +190,7 @@ class TestObservationBuilder:
 
     def test_build_dict(self, mock_state):
         """Test building observation as dictionary."""
-        config = ObservationBuilderConfig(
-            observation_types=["health"]
-        )
+        config = ObservationBuilderConfig(observation_types=["health"])
         builder = ObservationBuilder(config=config)
 
         obs_dict = builder.build_dict(mock_state)
@@ -204,9 +201,7 @@ class TestObservationBuilder:
 
     def test_get_space(self):
         """Test getting observation space info."""
-        config = ObservationBuilderConfig(
-            observation_types=["health"]
-        )
+        config = ObservationBuilderConfig(observation_types=["health"])
         builder = ObservationBuilder(config=config)
 
         space = builder.get_space()

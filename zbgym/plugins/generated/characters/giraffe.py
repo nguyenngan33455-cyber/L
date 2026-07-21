@@ -24,5 +24,3 @@ from zbgym.plugins.character import Character, CharacterStats, register_characte
 )
 class GiraffeCharacter(Character):
     """Character plugin for Giraffe."""
-
-    pass

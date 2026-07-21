@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Iterator
 
 
 class TokenType(Enum):
@@ -309,14 +307,18 @@ class Lexer:
 
         # Attributes [[ ]]
         if char == "[" and self._peek(1) == "[":
-            self.tokens.append(Token(TokenType.LBRACKET_LBRACKET, "[[", self.line, self.column, self.offset))
+            self.tokens.append(
+                Token(TokenType.LBRACKET_LBRACKET, "[[", self.line, self.column, self.offset)
+            )
             self._advance()
             self._advance()
             return
 
         # Bracket ]]
         if char == "]" and self._peek(1) == "]":
-            self.tokens.append(Token(TokenType.RBRACKET_RBRACKET, "]]", self.line, self.column, self.offset))
+            self.tokens.append(
+                Token(TokenType.RBRACKET_RBRACKET, "]]", self.line, self.column, self.offset)
+            )
             self._advance()
             self._advance()
             return
@@ -339,11 +341,15 @@ class Lexer:
         # Compound operators
         if char == "=":
             if self._peek(1) == "=":
-                self.tokens.append(Token(TokenType.EQ_EQ, "==", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.EQ_EQ, "==", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             elif self._peek(1) == ">":
-                self.tokens.append(Token(TokenType.ARROW, "=>", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.ARROW, "=>", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             else:
@@ -353,7 +359,9 @@ class Lexer:
 
         if char == "!":
             if self._peek(1) == "=":
-                self.tokens.append(Token(TokenType.BANG_EQ, "!=", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.BANG_EQ, "!=", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             else:
@@ -363,17 +371,23 @@ class Lexer:
 
         if char == "<":
             if self._peek(1) == "=":
-                self.tokens.append(Token(TokenType.LT_EQ, "<=", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.LT_EQ, "<=", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             elif self._peek(1) == "<":
                 if self._peek(2) == "=":
-                    self.tokens.append(Token(TokenType.LT_LT_EQ, "<<=", self.line, self.column, self.offset))
+                    self.tokens.append(
+                        Token(TokenType.LT_LT_EQ, "<<=", self.line, self.column, self.offset)
+                    )
                     self._advance()
                     self._advance()
                     self._advance()
                 else:
-                    self.tokens.append(Token(TokenType.LT_LT, "<<", self.line, self.column, self.offset))
+                    self.tokens.append(
+                        Token(TokenType.LT_LT, "<<", self.line, self.column, self.offset)
+                    )
                     self._advance()
                     self._advance()
             else:
@@ -383,17 +397,23 @@ class Lexer:
 
         if char == ">":
             if self._peek(1) == "=":
-                self.tokens.append(Token(TokenType.GT_EQ, ">=", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.GT_EQ, ">=", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             elif self._peek(1) == ">":
                 if self._peek(2) == "=":
-                    self.tokens.append(Token(TokenType.GT_GT_EQ, ">>=", self.line, self.column, self.offset))
+                    self.tokens.append(
+                        Token(TokenType.GT_GT_EQ, ">>=", self.line, self.column, self.offset)
+                    )
                     self._advance()
                     self._advance()
                     self._advance()
                 else:
-                    self.tokens.append(Token(TokenType.GT_GT, ">>", self.line, self.column, self.offset))
+                    self.tokens.append(
+                        Token(TokenType.GT_GT, ">>", self.line, self.column, self.offset)
+                    )
                     self._advance()
                     self._advance()
             else:
@@ -403,25 +423,35 @@ class Lexer:
 
         if char == "&":
             if self._peek(1) == "&":
-                self.tokens.append(Token(TokenType.AMPERSAND_AMPERSAND, "&&", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.AMPERSAND_AMPERSAND, "&&", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             elif self._peek(1) == "=":
-                self.tokens.append(Token(TokenType.AMPERSAND_EQ, "&=", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.AMPERSAND_EQ, "&=", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             else:
-                self.tokens.append(Token(TokenType.AMPERSAND, "&", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.AMPERSAND, "&", self.line, self.column, self.offset)
+                )
                 self._advance()
             return
 
         if char == "|":
             if self._peek(1) == "|":
-                self.tokens.append(Token(TokenType.PIPE_PIPE, "||", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.PIPE_PIPE, "||", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             elif self._peek(1) == "=":
-                self.tokens.append(Token(TokenType.PIPE_EQ, "|=", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.PIPE_EQ, "|=", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             else:
@@ -431,11 +461,15 @@ class Lexer:
 
         if char == "+":
             if self._peek(1) == "+":
-                self.tokens.append(Token(TokenType.PLUS_PLUS, "++", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.PLUS_PLUS, "++", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             elif self._peek(1) == "=":
-                self.tokens.append(Token(TokenType.PLUS_EQ, "+=", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.PLUS_EQ, "+=", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             else:
@@ -445,15 +479,21 @@ class Lexer:
 
         if char == "-":
             if self._peek(1) == "-":
-                self.tokens.append(Token(TokenType.MINUS_MINUS, "--", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.MINUS_MINUS, "--", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             elif self._peek(1) == "=":
-                self.tokens.append(Token(TokenType.MINUS_EQ, "-=", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.MINUS_EQ, "-=", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             elif self._peek(1) == ">":
-                self.tokens.append(Token(TokenType.ARROW, "->", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.ARROW, "->", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             else:
@@ -463,11 +503,15 @@ class Lexer:
 
         if char == ":":
             if self._peek(1) == ":":
-                self.tokens.append(Token(TokenType.DOUBLE_COLON, "::", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.DOUBLE_COLON, "::", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             elif self._peek(1) == "?":
-                self.tokens.append(Token(TokenType.NULL_COLON, "?:", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.NULL_COLON, "?:", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             else:
@@ -481,13 +525,17 @@ class Lexer:
                 self._advance()
                 self._advance()
             else:
-                self.tokens.append(Token(TokenType.QUESTION, "?", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.QUESTION, "?", self.line, self.column, self.offset)
+                )
                 self._advance()
             return
 
         if char == "^":
             if self._peek(1) == "=":
-                self.tokens.append(Token(TokenType.CARET_EQ, "^=", self.line, self.column, self.offset))
+                self.tokens.append(
+                    Token(TokenType.CARET_EQ, "^=", self.line, self.column, self.offset)
+                )
                 self._advance()
                 self._advance()
             else:
@@ -497,7 +545,9 @@ class Lexer:
 
         # Single character tokens
         if char in self.SINGLE_CHAR_TOKENS:
-            self.tokens.append(Token(self.SINGLE_CHAR_TOKENS[char], char, self.line, self.column, self.offset))
+            self.tokens.append(
+                Token(self.SINGLE_CHAR_TOKENS[char], char, self.line, self.column, self.offset)
+            )
             self._advance()
             return
 
@@ -563,7 +613,18 @@ class Lexer:
             elif char == "." and not has_decimal:
                 has_decimal = True
                 self._advance()
-            elif char == "f" or char == "F" or char == "d" or char == "D" or char == "m" or char == "M" or char == "u" or char == "U" or char == "l" or char == "L":
+            elif (
+                char == "f"
+                or char == "F"
+                or char == "d"
+                or char == "D"
+                or char == "m"
+                or char == "M"
+                or char == "u"
+                or char == "U"
+                or char == "l"
+                or char == "L"
+            ):
                 self._advance()
                 break
             else:

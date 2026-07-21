@@ -1,8 +1,7 @@
 """Tests for ZBGym CLI."""
 
-import pytest
-from zbgym.cli.main import CLI
 from zbgym.cli import commands
+from zbgym.cli.main import CLI
 
 
 class TestCLI:

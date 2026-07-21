@@ -18,11 +18,10 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass, field
-from typing import Any, ClassVar
+from typing import Any
 
 from zbgym.dashboard.exceptions import DashboardProtocolError
 from zbgym.dashboard.models import PacketType
-
 
 # Protocol version
 PROTOCOL_VERSION = "1.0"

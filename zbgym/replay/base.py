@@ -5,10 +5,9 @@ from __future__ import annotations
 import gzip
 import json
 import time
-import zlib
+from collections.abc import Iterator
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 import numpy as np
 
@@ -35,8 +34,11 @@ class Step:
                 for k, v in self.observations.items()
             },
             "actions": {
-                k: int(v) if isinstance(v, (np.int32, np.int64)) else 
-                   v.tolist() if isinstance(v, np.ndarray) else v
+                k: int(v)
+                if isinstance(v, (np.int32, np.int64))
+                else v.tolist()
+                if isinstance(v, np.ndarray)
+                else v
                 for k, v in self.actions.items()
             },
             "rewards": self.rewards,
@@ -128,9 +130,7 @@ class Replay:
     @property
     def total_reward(self) -> float:
         """Get total reward across all steps."""
-        return sum(
-            sum(s.rewards.values()) for s in self.steps
-        )
+        return sum(sum(s.rewards.values()) for s in self.steps)
 
     def get_stats(self) -> dict[str, Any]:
         """Get replay statistics."""

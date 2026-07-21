@@ -24,5 +24,3 @@ from zbgym.plugins.character import Character, CharacterStats, register_characte
 )
 class MoleCharacter(Character):
     """Character plugin for Mole."""
-
-    pass

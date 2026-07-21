@@ -5,6 +5,8 @@ ZBGym provides a modular, extensible environment for training RL agents
 in battle arena combat scenarios.
 """
 
+from zbgym.config import EnvironmentConfig, ZBGymConfig, get_default_config
+from zbgym.make import make, register
 from zbgym.version import (
     __author__,
     __description__,
@@ -15,8 +17,6 @@ from zbgym.version import (
     __version__,
     __version_info__,
 )
-from zbgym.config import EnvironmentConfig, ZBGymConfig, get_default_config
-from zbgym.make import make, register
 
 __all__ = [
     # Version

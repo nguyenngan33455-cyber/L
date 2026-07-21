@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 
@@ -184,7 +184,6 @@ class BaseTrainer(ABC):
     @abstractmethod
     def setup(self) -> None:
         """Setup training environment and model."""
-        pass
 
     @abstractmethod
     def train(self, callback: Callable | None = None) -> Any:
@@ -197,7 +196,6 @@ class BaseTrainer(ABC):
         Returns:
             Trained model
         """
-        pass
 
     @abstractmethod
     def predict(self, observation: np.ndarray, deterministic: bool = True) -> tuple:
@@ -211,7 +209,6 @@ class BaseTrainer(ABC):
         Returns:
             Action and state
         """
-        pass
 
     def save(self, path: str | Path | None = None) -> Path:
         """

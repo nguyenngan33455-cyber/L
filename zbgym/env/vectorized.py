@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
 
-from zbgym.env.battle_arena import BattleArena, BattleArenaState
 from zbgym.config import EnvironmentConfig
+from zbgym.env.battle_arena import BattleArena, BattleArenaState
 
 
 @dataclass
@@ -17,19 +16,33 @@ class VectorizedState:
     """Vectorized state for batched environments."""
 
     # Shape: (num_envs, max_characters_per_env)
-    positions: NDArray[np.float32] = field(default_factory=lambda: np.zeros((1, 10, 2), dtype=np.float32))
-    velocities: NDArray[np.float32] = field(default_factory=lambda: np.zeros((1, 10, 2), dtype=np.float32))
-    healths: NDArray[np.float32] = field(default_factory=lambda: np.zeros((1, 10), dtype=np.float32))
-    shields: NDArray[np.float32] = field(default_factory=lambda: np.zeros((1, 10), dtype=np.float32))
-    energies: NDArray[np.float32] = field(default_factory=lambda: np.zeros((1, 10), dtype=np.float32))
+    positions: NDArray[np.float32] = field(
+        default_factory=lambda: np.zeros((1, 10, 2), dtype=np.float32)
+    )
+    velocities: NDArray[np.float32] = field(
+        default_factory=lambda: np.zeros((1, 10, 2), dtype=np.float32)
+    )
+    healths: NDArray[np.float32] = field(
+        default_factory=lambda: np.zeros((1, 10), dtype=np.float32)
+    )
+    shields: NDArray[np.float32] = field(
+        default_factory=lambda: np.zeros((1, 10), dtype=np.float32)
+    )
+    energies: NDArray[np.float32] = field(
+        default_factory=lambda: np.zeros((1, 10), dtype=np.float32)
+    )
     is_alive: NDArray[np.bool_] = field(default_factory=lambda: np.ones((1, 10), dtype=np.bool_))
 
     # Shape: (num_envs,)
     ticks: NDArray[np.int32] = field(default_factory=lambda: np.zeros(1, dtype=np.int32))
-    elapsed_times: NDArray[np.float32] = field(default_factory=lambda: np.zeros(1, dtype=np.float32))
+    elapsed_times: NDArray[np.float32] = field(
+        default_factory=lambda: np.zeros(1, dtype=np.float32)
+    )
 
     # Shape: (num_envs, 2) - zone centers
-    zone_centers: NDArray[np.float32] = field(default_factory=lambda: np.zeros((1, 2), dtype=np.float32))
+    zone_centers: NDArray[np.float32] = field(
+        default_factory=lambda: np.zeros((1, 2), dtype=np.float32)
+    )
     zone_radii: NDArray[np.float32] = field(default_factory=lambda: np.zeros(1, dtype=np.float32))
 
     num_envs: int = 1
@@ -60,7 +73,7 @@ class VectorizedBattleArena:
         """
         if num_envs < 1:
             raise ValueError(f"num_envs must be >= 1, got {num_envs}")
-        
+
         self.num_envs = num_envs
         self.config = config or EnvironmentConfig()
         self.use_multiprocessing = use_multiprocessing
@@ -114,7 +127,9 @@ class VectorizedBattleArena:
 
     def step(
         self, actions: NDArray[np.float32]
-    ) -> tuple[NDArray[np.float32], NDArray[np.float32], NDArray[np.bool_], NDArray[np.bool_], list[dict]]:
+    ) -> tuple[
+        NDArray[np.float32], NDArray[np.float32], NDArray[np.bool_], NDArray[np.bool_], list[dict]
+    ]:
         """
         Step all environments.
 
@@ -286,7 +301,9 @@ class SyncVectorizedEnv:
 
     def step(
         self, actions: NDArray[np.float32]
-    ) -> tuple[NDArray[np.float32], NDArray[np.float32], NDArray[np.bool_], NDArray[np.bool_], list[dict]]:
+    ) -> tuple[
+        NDArray[np.float32], NDArray[np.float32], NDArray[np.bool_], NDArray[np.bool_], list[dict]
+    ]:
         """Step all virtual environments."""
         observations = []
         rewards = []
@@ -320,7 +337,9 @@ class SyncVectorizedEnv:
         self._env.close()
 
 
-def make_vectorized(env_id: str = "BattleArena-v1", num_envs: int = 32, **kwargs) -> VectorizedBattleArena:
+def make_vectorized(
+    env_id: str = "BattleArena-v1", num_envs: int = 32, **kwargs
+) -> VectorizedBattleArena:
     """
     Create a vectorized environment.
 

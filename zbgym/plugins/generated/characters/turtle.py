@@ -24,5 +24,3 @@ from zbgym.plugins.character import Character, CharacterStats, register_characte
 )
 class TurtleCharacter(Character):
     """Character plugin for Turtle."""
-
-    pass

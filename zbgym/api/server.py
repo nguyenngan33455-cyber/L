@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -100,6 +99,7 @@ class DashboardAPI:
         @router.post("/sessions")
         async def create_session(data: dict[str, Any]):
             import uuid
+
             session_id = str(uuid.uuid4())[:8]
             session = TrainingSession(
                 id=session_id,
@@ -196,6 +196,7 @@ class DashboardAPI:
     def broadcast(self, message: dict[str, Any]) -> None:
         """Broadcast message to all WebSocket clients."""
         import asyncio
+
         data = json.dumps(message)
         for ws in self._websockets:
             try:

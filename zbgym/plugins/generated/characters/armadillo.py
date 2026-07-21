@@ -24,5 +24,3 @@ from zbgym.plugins.character import Character, CharacterStats, register_characte
 )
 class ArmadilloCharacter(Character):
     """Character plugin for Armadillo."""
-
-    pass

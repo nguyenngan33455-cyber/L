@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from zbgym.env.battle_arena import BattleArena
 
 # Environment registry
-_REGISTRY: dict[str, Callable[..., "BattleArena"]] = {}
+_REGISTRY: dict[str, Callable[..., BattleArena]] = {}
 
 
 class EnvironmentSpec:
@@ -17,7 +18,7 @@ class EnvironmentSpec:
     def __init__(
         self,
         id: str,
-        entry_point: Callable[..., "BattleArena"],
+        entry_point: Callable[..., BattleArena],
         kwargs: dict[str, Any] | None = None,
         description: str = "",
     ) -> None:
@@ -26,7 +27,7 @@ class EnvironmentSpec:
         self.kwargs = kwargs or {}
         self.description = description
 
-    def make(self, **kwargs: Any) -> "BattleArena":
+    def make(self, **kwargs: Any) -> BattleArena:
         """Create an instance of this environment."""
         merged_kwargs = {**self.kwargs, **kwargs}
         return self.entry_point(**merged_kwargs)
@@ -34,7 +35,7 @@ class EnvironmentSpec:
 
 def register(
     id: str,
-    entry_point: Callable[..., "BattleArena"],
+    entry_point: Callable[..., BattleArena],
     kwargs: dict[str, Any] | None = None,
     description: str = "",
 ) -> None:
@@ -60,7 +61,7 @@ def register(
         pass
 
 
-def make(env_id: str, **kwargs: Any) -> "BattleArena":
+def make(env_id: str, **kwargs: Any) -> BattleArena:
     """
     Create a ZBGym environment by ID.
 
@@ -75,7 +76,6 @@ def make(env_id: str, **kwargs: Any) -> "BattleArena":
         Error: If the environment ID is not found
     """
     # Import here to avoid circular imports
-    from zbgym.env.battle_arena import BattleArena
 
     if env_id in _REGISTRY:
         return _REGISTRY[env_id](**kwargs)

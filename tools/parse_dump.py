@@ -19,7 +19,7 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from zbgym.dump.compiler import Lexer, Parser, Compiler
+from zbgym.dump.compiler import Compiler
 
 
 def main():

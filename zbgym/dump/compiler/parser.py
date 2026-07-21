@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from zbgym.dump.compiler.lexer import Token, TokenType, Lexer
+from zbgym.dump.compiler.lexer import Token, TokenType
 
 
 @dataclass
@@ -398,7 +398,9 @@ class Parser:
 
                 if self._check(TokenType.LPAREN):
                     # It's a method
-                    method = self._parse_method_with_modifiers(modifiers, type_name, name_token.value)
+                    method = self._parse_method_with_modifiers(
+                        modifiers, type_name, name_token.value
+                    )
                     members.append(method)
                 else:
                     # It's a field
@@ -417,9 +419,8 @@ class Parser:
         while self._check(TokenType.NEWLINE):
             self._advance()
 
-        is_start = (
-            self._check(TokenType.IDENTIFIER)
-            or self._is_type_keyword()
+        is_start = self._check(TokenType.IDENTIFIER) or (
+            self._is_type_keyword()
             and self._peek_is_identifier_or_type()
             and self._has_get_or_set_ahead()
         )
@@ -599,7 +600,9 @@ class Parser:
                 depth -= 1
             self._advance()
 
-        return self.source_text(self.tokens[0].offset, self.tokens[self.offset - 1].offset if self.offset > 0 else 0)
+        return self.source_text(
+            self.tokens[0].offset, self.tokens[self.offset - 1].offset if self.offset > 0 else 0
+        )
 
     def _parse_enum_members(self) -> list[EnumMemberDecl]:
         """Parse enum members."""
@@ -633,24 +636,23 @@ class Parser:
         if self._check(TokenType.INTEGER):
             self._advance()
             return int(token.value)
-        elif self._check(TokenType.FLOAT):
+        if self._check(TokenType.FLOAT):
             self._advance()
             return float(token.value)
-        elif self._check(TokenType.STRING):
+        if self._check(TokenType.STRING):
             self._advance()
             return token.value
-        elif self._check(TokenType.BOOLEAN):
+        if self._check(TokenType.BOOLEAN):
             self._advance()
             return token.value == "true"
-        elif self._check(TokenType.NULL):
+        if self._check(TokenType.NULL):
             self._advance()
             return None
-        elif self._check(TokenType.IDENTIFIER):
+        if self._check(TokenType.IDENTIFIER):
             self._advance()
             return token.value
-        else:
-            self._advance()
-            return token.value
+        self._advance()
+        return token.value
 
     def _is_type_keyword(self) -> bool:
         """Check if current token is a type keyword."""

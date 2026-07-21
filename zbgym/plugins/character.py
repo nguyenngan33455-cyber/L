@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import random
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
-from zbgym.plugins.base import Plugin, PluginMetadata, PluginRegistry
-from zbgym.physics.vector import Vector2D
+from zbgym.constants import MAX_ENERGY, MAX_HEALTH, MAX_SHIELD
 from zbgym.physics.body import DynamicBody
-from zbgym.constants import MAX_HEALTH, MAX_SHIELD, MAX_ENERGY
+from zbgym.physics.vector import Vector2D
+from zbgym.plugins.base import Plugin, PluginMetadata, PluginRegistry
 
 if TYPE_CHECKING:
     from zbgym.engine.event_bus import EventBus
@@ -134,7 +135,6 @@ class Character(Plugin):
 
     def shutdown(self) -> None:
         """Cleanup character."""
-        pass
 
     def _reset_state(self) -> None:
         """Reset character to initial state."""
@@ -319,9 +319,7 @@ class Character(Plugin):
     def update_abilities(self, dt: float) -> None:
         """Update ability cooldowns."""
         for ability_id in list(self.ability_cooldowns.keys()):
-            self.ability_cooldowns[ability_id] = max(
-                0.0, self.ability_cooldowns[ability_id] - dt
-            )
+            self.ability_cooldowns[ability_id] = max(0.0, self.ability_cooldowns[ability_id] - dt)
 
     def die(self, killer_id: str) -> None:
         """Handle character death."""
@@ -457,14 +455,14 @@ _DEFAULT_CHARACTERS_LOADED = False
 
 def load_default_characters() -> None:
     """Load default characters into the registry.
-    
+
     This is called automatically by gen.load_and_register() but can also
     be called manually to ensure the registry is populated.
     """
     global _DEFAULT_CHARACTERS_LOADED
     if _DEFAULT_CHARACTERS_LOADED:
         return
-    
+
     # Characters are typically loaded from dump data
     # This function ensures consistency with weapon_registry
     # which has built-in default weapons
