@@ -1,0 +1,29 @@
+# ZBGym Plugin Manifest
+# Copy this file to your plugin directory as plugin.toml
+
+[plugin]
+name = "my-plugin"
+version = "1.0.0"
+author = "Your Name <your@email.com>"
+description = "A brief description of your plugin"
+
+# Minimum ZBGym version required
+minimum-zbgym-version = "1.0.0"
+
+# Plugin API version
+api-version = "1.0"
+
+# Required dependencies (plugin names)
+dependencies = []
+
+# Optional dependencies
+optional-dependencies = []
+
+# Games this plugin supports
+supported-games = []
+
+# Capabilities this plugin provides
+capabilities = []
+
+# Entry point file
+entry-point = "plugin.py"
