@@ -7,9 +7,8 @@ from typing import TYPE_CHECKING, Any
 
 from zbgym.reward.base import (
     Reward,
-    RewardConfig,
-    RewardResult,
     RewardRegistry,
+    RewardResult,
     reward_registry,
 )
 
@@ -21,16 +20,16 @@ if TYPE_CHECKING:
 class RewardBuilderConfig:
     """Configuration for the reward builder."""
 
-    reward_types: list[str] = field(
-        default_factory=lambda: ["survival", "kill", "death_penalty"]
+    reward_types: list[str] = field(default_factory=lambda: ["survival", "kill", "death_penalty"])
+    default_weights: dict[str, float] = field(
+        default_factory=lambda: {
+            "survival": 1.0,
+            "kill": 1.0,
+            "damage": 1.0,
+            "death_penalty": 1.0,
+            "idle_penalty": 0.5,
+        }
     )
-    default_weights: dict[str, float] = field(default_factory=lambda: {
-        "survival": 1.0,
-        "kill": 1.0,
-        "damage": 1.0,
-        "death_penalty": 1.0,
-        "idle_penalty": 0.5,
-    })
     normalize_total: bool = False
 
 
@@ -64,8 +63,8 @@ class RewardBuilder:
 
     def _register_default_rewards(self) -> None:
         """Register default rewards."""
+        from zbgym.reward.combat import DamageReward, KillReward
         from zbgym.reward.survival import SurvivalReward
-        from zbgym.reward.combat import KillReward, DamageReward
         from zbgym.reward.utility import DeathPenalty, IdlePenalty
 
         self.registry.register("survival", SurvivalReward)
@@ -93,8 +92,8 @@ class RewardBuilder:
 
     def build(
         self,
-        state: "BattleArenaState",
-        prev_state: "BattleArenaState | None" = None,
+        state: BattleArenaState,
+        prev_state: BattleArenaState | None = None,
     ) -> RewardResult:
         """
         Build complete reward from game state.
@@ -164,6 +163,15 @@ class RewardBuilder:
             reward.config.weight = self.config.default_weights[reward_id]
         self._rewards.append(reward)
         return True
+
+    def add_combat_reward(self) -> bool:
+        """
+        Add combat reward (alias for add_reward('combat')).
+
+        Returns:
+            True if combat reward was added, False otherwise
+        """
+        return self.add_reward("combat")
 
     def remove_reward(self, reward_id: str) -> bool:
         """Remove a reward type."""

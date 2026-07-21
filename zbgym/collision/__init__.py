@@ -1,12 +1,16 @@
 """Collision detection modules for ZBGym."""
 
-from zbgym.collision.detector import CollisionDetector, Collision
+from zbgym.collision.detector import Collision, CollisionDetector
 from zbgym.collision.shapes import Circle, Rectangle, Shape
 
+# Alias for backwards compatibility
+CollisionSystem = CollisionDetector
+
 __all__ = [
-    "CollisionDetector",
-    "Collision",
     "Circle",
+    "Collision",
+    "CollisionDetector",
+    "CollisionSystem",  # Alias for CollisionDetector
     "Rectangle",
     "Shape",
 ]

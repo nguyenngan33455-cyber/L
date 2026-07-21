@@ -48,6 +48,29 @@ class ReplayRecorder:
         self._current_tick: int = 0
         self._recording: bool = False
 
+    # Alias for backwards compatibility
+    def start_episode(
+        self,
+        episode_id: str | None = None,
+        env_id: str | None = None,
+        seed: int | None = None,
+        tags: list[str] | None = None,
+    ) -> None:
+        """
+        Start recording a new episode (alias for start()).
+
+        Args:
+            episode_id: Episode ID (kept for compatibility, stored in tags)
+            env_id: Environment ID (overrides instance env_id if provided)
+            seed: Random seed
+            tags: Tags for this episode
+        """
+        if env_id:
+            self.env_id = env_id
+        if episode_id:
+            tags = list(tags or []) + [f"episode_id:{episode_id}"]
+        self.start(seed=seed, tags=tags)
+
     def start(
         self,
         seed: int | None = None,
@@ -124,7 +147,9 @@ class ReplayRecorder:
         self._recording = False
         self._current_replay.metadata.total_ticks = len(self._current_replay)
         self._current_replay.metadata.episode_reward = self._current_replay.total_reward
-        self._current_replay.metadata.num_agents = len(self._current_replay.steps[0].rewards) if self._current_replay.steps else 0
+        self._current_replay.metadata.num_agents = (
+            len(self._current_replay.steps[0].rewards) if self._current_replay.steps else 0
+        )
 
         replay = self._current_replay
         self._current_replay = None
@@ -145,8 +170,8 @@ class ReplayRecorder:
         Returns:
             Path where replay was saved
         """
-        from pathlib import Path
         import time
+        from pathlib import Path
 
         if path is None:
             timestamp = int(time.time())
@@ -177,9 +202,9 @@ class ReplayRecorder:
         if path.suffix == ".replay":
             data = path.read_bytes()
             return Replay.decompress(data)
-        else:
-            import json
-            return Replay.from_dict(json.loads(path.read_text()))
+        import json
+
+        return Replay.from_dict(json.loads(path.read_text()))
 
 
 class ReplayCallback:

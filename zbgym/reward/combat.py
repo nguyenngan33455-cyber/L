@@ -8,10 +8,8 @@ from typing import TYPE_CHECKING
 from zbgym.reward.base import (
     Reward,
     RewardConfig,
-    RewardEvent,
     reward_registry,
 )
-from zbgym.constants import MAX_HEALTH
 
 if TYPE_CHECKING:
     from zbgym.env.battle_arena import BattleArenaState
@@ -44,8 +42,8 @@ class KillReward(Reward):
 
     def compute(
         self,
-        state: "BattleArenaState",
-        prev_state: "BattleArenaState" | None = None,
+        state: BattleArenaState,
+        prev_state: BattleArenaState | None = None,
     ) -> float:
         """Compute kill reward."""
         if prev_state is None:
@@ -111,8 +109,8 @@ class DamageReward(Reward):
 
     def compute(
         self,
-        state: "BattleArenaState",
-        prev_state: "BattleArenaState" | None = None,
+        state: BattleArenaState,
+        prev_state: BattleArenaState | None = None,
     ) -> float:
         """Compute damage reward."""
         if prev_state is None:
@@ -131,18 +129,25 @@ class DamageReward(Reward):
         total = 0.0
 
         # Track damage from damage events in state
-        if hasattr(state, 'damage_events') and state.damage_events:
+        if hasattr(state, "damage_events") and state.damage_events:
             for event in state.damage_events:
                 if event.agent_id == self_char.id:
                     damage = event.value
                     total += damage * self.config.damage_scale
 
-                    if event.metadata.get('headshot', False):
+                    if event.metadata.get("headshot", False):
                         total += self.config.headshot_bonus
 
         return self.process(total)
 
 
+# Alias for backwards compatibility
+# CombatReward is an alias for DamageReward (the main combat reward)
+CombatReward = DamageReward
+CombatRewardConfig = DamageRewardConfig
+
+
 # Register rewards
 reward_registry.register("kill", KillReward)
 reward_registry.register("damage", DamageReward)
+reward_registry.register("combat", DamageReward)  # Alias

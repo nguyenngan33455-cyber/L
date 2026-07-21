@@ -8,11 +8,13 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class ZBGymConfig(BaseModel):
     """Main configuration for ZBGym."""
+
+    model_config = ConfigDict(extra="ignore")
 
     # Physics settings
     gravity: float = 980.0
@@ -56,11 +58,6 @@ class ZBGymConfig(BaseModel):
     # Logging
     log_level: str = "INFO"
     log_dir: Path = Path("./logs")
-
-    class Config:
-        """Pydantic config."""
-
-        extra = "ignore"
 
 
 @dataclass

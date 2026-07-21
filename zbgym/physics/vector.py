@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator
 
 
 @dataclass
@@ -74,6 +74,12 @@ class Vector2D:
         if length > 0:
             return Vector2D(self.x / length, self.y / length)
         return Vector2D.zero()
+
+    # Alias for backwards compatibility
+    @property
+    def normalize(self) -> Vector2D:
+        """Unit vector in the same direction (alias for normalized)."""
+        return self.normalized
 
     @property
     def perpendicular(self) -> Vector2D:
@@ -191,6 +197,12 @@ class Vector3D:
         if length > 0:
             return Vector3D(self.x / length, self.y / length, self.z / length)
         return Vector3D.zero()
+
+    # Alias for backwards compatibility
+    @property
+    def normalize(self) -> Vector3D:
+        """Unit vector in the same direction (alias for normalized)."""
+        return self.normalized
 
     def dot(self, other: Vector3D) -> float:
         """Dot product with another vector."""
