@@ -75,8 +75,6 @@ class Vector2D:
             return Vector2D(self.x / length, self.y / length)
         return Vector2D.zero()
 
-    # Alias for backwards compatibility
-    @property
     def normalize(self) -> Vector2D:
         """Unit vector in the same direction (alias for normalized)."""
         return self.normalized
@@ -198,8 +196,6 @@ class Vector3D:
             return Vector3D(self.x / length, self.y / length, self.z / length)
         return Vector3D.zero()
 
-    # Alias for backwards compatibility
-    @property
     def normalize(self) -> Vector3D:
         """Unit vector in the same direction (alias for normalized)."""
         return self.normalized

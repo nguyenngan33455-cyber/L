@@ -98,25 +98,42 @@ class ReplayRecorder:
     def record_step(
         self,
         state: dict[str, Any],
-        observations: dict[str, np.ndarray],
-        actions: dict[str, int | np.ndarray],
-        rewards: dict[str, float],
-        dones: dict[str, bool],
-        infos: dict[str, Any],
+        observations: dict[str, np.ndarray] | None = None,
+        actions: dict[str, int | np.ndarray] | None = None,
+        rewards: dict[str, float] | None = None,
+        dones: dict[str, bool] | None = None,
+        infos: dict[str, Any] | None = None,
+        # Aliases for backwards compatibility
+        observation: dict[str, np.ndarray] | None = None,
     ) -> None:
         """
         Record a single step.
 
         Args:
             state: Current game state
-            observations: Agent observations
+            observations: Agent observations (dict)
             actions: Agent actions
             rewards: Agent rewards
             dones: Agent done flags
             infos: Additional info
+            observation: Alias for observations (backwards compatibility)
         """
         if not self._recording or self._current_replay is None:
             return
+
+        # Support both observation and observations for backwards compatibility
+        if observation is not None and observations is None:
+            observations = observation
+        if observations is None:
+            observations = {}
+        if actions is None:
+            actions = {}
+        if rewards is None:
+            rewards = {}
+        if dones is None:
+            dones = {}
+        if infos is None:
+            infos = {}
 
         step = Step(
             tick=self._current_tick,
